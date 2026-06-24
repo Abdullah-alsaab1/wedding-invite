@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23FAF6EE' stroke='%23C9A84C' stroke-width='3'/%3E%3Ctext y='58' x='50' text-anchor='middle' font-size='52'%3E💍%3C/text%3E%3C/svg%3E">
 <title>✦ مصمم دعوات الأعراس الفاخرة</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Tajawal:wght@200;300;400;500;700;900&family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&family=Noto+Naskh+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -79,8 +80,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
 .stage-lbl{font-size:.6rem;letter-spacing:.22em;color:rgba(232,201,108,.55);text-transform:uppercase;margin-bottom:1.6rem}
 
 /* CARD */
-#card{width:500px;max-width:92vw;position:relative;border-radius:2px;transition:all .45s cubic-bezier(.25,.8,.25,1);box-shadow:0 0 0 1px rgba(201,168,76,.22),0 0 80px rgba(201,168,76,.08),0 40px 100px rgba(0,0,0,.8)}
-.card-body{min-height:700px;padding:3.5rem 3rem;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;position:relative}
+#card{width:500px;max-width:92vw;position:relative;border-radius:2px;transition:all .45s cubic-bezier(.25,.8,.25,1);box-shadow:0 0 0 1px rgba(201,168,76,.22),0 0 80px rgba(201,168,76,.08),0 40px 100px rgba(0,0,0,.8);direction:rtl}
+.card-body{min-height:700px;padding:3.5rem 3rem;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;position:relative;direction:rtl;unicode-bidi:embed}
 
 /* Corner SVGs */
 .corners{position:absolute;inset:0;pointer-events:none}
@@ -89,20 +90,20 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
 .csz.bl{bottom:8px;right:8px;transform:scaleY(-1)}.csz.br{bottom:8px;left:8px;transform:scale(-1,-1)}
 
 /* Card content */
-.c-bism{font-family:'Noto Naskh Arabic',serif;font-size:1.25rem;opacity:.6;letter-spacing:.05em;margin-bottom:.25rem}
-.c-eyebrow{font-family:'Tajawal',sans-serif;font-weight:300;font-size:.76rem;letter-spacing:.2em;text-transform:uppercase;opacity:.58}
+.c-bism{font-family:'Noto Naskh Arabic',serif;font-size:1.25rem;opacity:.6;letter-spacing:.05em;margin-bottom:.25rem;direction:rtl;unicode-bidi:embed}
+.c-eyebrow{font-family:'Noto Naskh Arabic',serif;font-size:.8rem;opacity:.65;direction:rtl;unicode-bidi:embed;letter-spacing:0}
 .c-fl{font-size:1.5rem;opacity:.42;margin:.35rem 0;display:block}
 .c-names{line-height:1.05;margin:.25rem 0}
 .c-n1,.c-n2{display:block;font-family:'Great Vibes',cursive}
 .c-amp{display:block;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:.95rem;opacity:.42;margin:.12rem 0}
 .c-rule{width:100%;max-width:280px;height:1px;margin:1.05rem auto;position:relative}
 .c-rule::before{content:'❧';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:.95rem;padding:0 .45rem;opacity:.45}
-.c-msg{font-family:'Noto Naskh Arabic',serif;font-size:.9rem;line-height:2.1;max-width:340px;opacity:.82}
+.c-msg{font-family:'Noto Naskh Arabic',serif;font-size:.9rem;line-height:2.1;max-width:340px;opacity:.82;direction:rtl;unicode-bidi:embed}
 .c-details{width:100%;max-width:340px;margin:.7rem auto 0}
-.c-det{display:flex;align-items:center;justify-content:center;gap:.65rem;font-size:.8rem;padding:.32rem 0;font-family:'Tajawal',sans-serif}
+.c-det{display:flex;align-items:center;justify-content:center;gap:.65rem;font-size:.8rem;padding:.32rem 0;font-family:'Tajawal',sans-serif;direction:rtl;unicode-bidi:embed}
 .c-det-ico{opacity:.48;font-size:.82rem}
 .c-rule-sm{width:55px;height:1px;margin:.4rem auto .7rem}
-.c-footer{font-family:'Tajawal',sans-serif;font-weight:300;font-size:.76rem;opacity:.45;letter-spacing:.04em;margin-top:.45rem}
+.c-footer{font-family:'Noto Naskh Arabic',serif;font-size:.76rem;opacity:.45;margin-top:.45rem;direction:rtl;unicode-bidi:embed}
 
 /* ── TEMPLATES ── */
 .t1 .card-body{background:linear-gradient(155deg,#FFFBF3 0%,#F8EFDA 40%,#F0E0C0 100%);color:#2C1A0E}
@@ -385,54 +386,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
       <circle cx="550" cy="105" r="1.2"/><circle cx="30" cy="120" r="1.0"/><circle cx="650" cy="110" r="0.8"/>
       <circle cx="70" cy="160" r="0.7"/><circle cx="610" cy="150" r="0.9"/><circle cx="250" cy="110" r="0.7"/>
     </g>
-    <circle cx="340" cy="110" r="44" fill="#F5EDD8"/>
-    <circle cx="358" cy="95" r="44" fill="#060E18"/>
-    <circle cx="340" cy="110" r="43" fill="none" stroke="#E8C96C" stroke-width="1" opacity="0.55"/>
-    <circle cx="340" cy="110" r="62" fill="none" stroke="#E8C96C" stroke-width="18" opacity="0.04"/>
-    <ellipse cx="340" cy="900" rx="400" ry="100" fill="#030810"/>
-    <g fill="#FFFFFF">
-      <rect x="278" y="590" width="18" height="90" rx="3"/><rect x="300" y="590" width="18" height="90" rx="3"/>
-      <rect x="268" y="472" width="58" height="124" rx="4"/>
-      <polygon points="284,472 300,506 284,512" fill="#D0C8B8"/>
-      <polygon points="322,472 300,506 322,512" fill="#D0C8B8"/>
-      <rect x="294" y="475" width="14" height="32" rx="2" fill="#E8E0D0"/>
-      <rect x="250" y="475" width="20" height="96" rx="6"/>
-      <rect x="326" y="475" width="20" height="96" rx="6"/>
-      <ellipse cx="344" cy="572" rx="8" ry="10"/>
-      <rect x="288" y="442" width="20" height="35" rx="4"/>
-      <ellipse cx="298" cy="422" rx="24" ry="28"/>
-      <ellipse cx="298" cy="400" rx="24" ry="11" fill="#E8E0D0"/>
-      <polygon points="293,482 300,490 293,498" fill="#E8C96C"/>
-      <polygon points="307,482 300,490 307,498" fill="#E8C96C"/>
-      <rect x="298" y="484" width="4" height="12" rx="1" fill="#E8C96C"/>
-    </g>
-    <g fill="#FFF8F0">
-      <path d="M322 594 Q275 635 240 730 L440 730 Q405 635 384 594 Z"/>
-      <rect x="326" y="472" width="50" height="128" rx="4"/>
-      <path d="M334 406 Q382 386 415 458 Q390 436 368 482 Q354 450 334 406Z" fill="#F0E8DC" opacity="0.9"/>
-      <rect x="310" y="478" width="18" height="80" rx="6"/>
-      <ellipse cx="316" cy="562" rx="9" ry="9"/>
-      <rect x="342" y="440" width="18" height="36" rx="4"/>
-      <ellipse cx="351" cy="418" rx="22" ry="26"/>
-      <ellipse cx="351" cy="394" rx="18" ry="14" fill="#E8DDD0"/>
-      <circle cx="351" cy="385" r="10" fill="#E8DDD0"/>
-      <path d="M335 594 Q322 642 298 730" stroke="#E8C96C" stroke-width="0.9" fill="none" opacity="0.4"/>
-      <path d="M358 600 Q364 650 370 730" stroke="#E8C96C" stroke-width="0.8" fill="none" opacity="0.35"/>
-    </g>
-    <g>
-      <circle cx="305" cy="554" r="9" fill="#FFFFFF" opacity="0.85"/>
-      <circle cx="296" cy="546" r="7" fill="#F0EAE0" opacity="0.85"/>
-      <circle cx="313" cy="544" r="7" fill="#F0EAE0" opacity="0.85"/>
-      <circle cx="305" cy="554" r="2.8" fill="#E8C96C" opacity="0.65"/>
-    </g>
-    <ellipse cx="330" cy="570" rx="18" ry="10" fill="#E8C96C" opacity="0.1"/>
-    <g stroke="#E8C96C" stroke-width="1" fill="none" opacity="0.5">
-      <path d="M70 730 Q82 670 94 602 Q88 540 108 488"/>
-      <path d="M94 602 Q118 584 130 560 Q112 573 94 602Z" fill="#E8C96C" opacity="0.18"/>
-      <circle cx="108" cy="488" r="10" fill="#E8C96C" fill-opacity="0.13"/>
-      <circle cx="108" cy="488" r="4" fill="#E8C96C" opacity="0.42"/>
-      <ellipse cx="126" cy="472" rx="5" ry="8" fill="#E8C96C" opacity="0.16"/>
-    </g>
     <g stroke="#E8C96C" stroke-width="1" fill="none" opacity="0.5">
       <path d="M610 730 Q598 670 586 602 Q592 540 572 488"/>
       <path d="M586 602 Q562 584 550 560 Q568 573 586 602Z" fill="#E8C96C" opacity="0.18"/>
@@ -606,9 +559,33 @@ function showLoad(m){document.getElementById('spintxt').textContent=m||'جاري
 function hideLoad(){document.getElementById('loading').classList.remove('on')}
 async function capture(){
   const card=document.getElementById('card');
-  const s=card.style.boxShadow;card.style.boxShadow='none';
-  const c=await html2canvas(card,{scale:3,useCORS:true,allowTaint:true,backgroundColor:null,logging:false});
-  card.style.boxShadow=s;return c;
+  const s=card.style.boxShadow;
+  card.style.boxShadow='none';
+  await new Promise(r=>setTimeout(r,80));
+  const c=await html2canvas(card,{
+    scale:3,useCORS:true,allowTaint:true,
+    backgroundColor:null,logging:false,
+    onclone:(doc)=>{
+      doc.documentElement.setAttribute('dir','ltr');
+      const el=doc.getElementById('card');
+      if(el){
+        el.style.direction='rtl';
+        el.querySelectorAll('*').forEach(e=>{
+          const cs=window.getComputedStyle(e);
+          if(cs.fontFamily&&cs.fontFamily.includes('Naskh')||cs.fontFamily.includes('Tajawal')||cs.fontFamily.includes('Vibes')||cs.fontFamily.includes('Garamond')){
+            e.style.direction='rtl';
+            e.style.unicodeBidi='embed';
+          }
+        });
+        el.querySelectorAll('.c-msg,.c-eyebrow,.c-det,.c-n1,.c-n2,.c-footer,.c-bism,.c-amp,.card-body').forEach(e=>{
+          e.style.direction='rtl';
+          e.style.unicodeBidi='embed';
+        });
+      }
+    }
+  });
+  card.style.boxShadow=s;
+  return c;
 }
 async function expPNG(){
   showLoad('جاري تحضير الصورة...');

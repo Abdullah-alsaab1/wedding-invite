@@ -73,9 +73,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
 .btn-main:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(201,168,76,.32)}
 
 /* STAGE */
-.stage{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 2rem;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(44,26,14,.8) 0%,#0A0704 80%);position:relative;overflow:hidden}
-.stage::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23C9A84C' fill-opacity='.022'%3E%3Cpath d='M40 0L42 38 80 40 42 42 40 80 38 42 0 40 38 38z'/%3E%3C/g%3E%3C/svg%3E");pointer-events:none}
-.stage-lbl{font-size:.6rem;letter-spacing:.22em;color:rgba(201,168,76,.38);text-transform:uppercase;margin-bottom:1.6rem}
+.stage{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 2rem;background:#0D1B2A;position:relative;overflow:hidden}
+.stage-bg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;object-fit:cover}
+.stage>*:not(.stage-bg){position:relative;z-index:1}
+.stage-lbl{font-size:.6rem;letter-spacing:.22em;color:rgba(232,201,108,.55);text-transform:uppercase;margin-bottom:1.6rem}
 
 /* CARD */
 #card{width:500px;max-width:92vw;position:relative;border-radius:2px;transition:all .45s cubic-bezier(.25,.8,.25,1);box-shadow:0 0 0 1px rgba(201,168,76,.22),0 0 80px rgba(201,168,76,.08),0 40px 100px rgba(0,0,0,.8)}
@@ -239,10 +240,6 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
     <div class="sec-lbl">نص الدعوة</div>
     <div class="ai-badge"><span class="ai-dot"></span> مدعوم بالذكاء الاصطناعي</div>
     <div class="fg">
-      <label>مفتاح Anthropic API <span style="opacity:.45;font-size:.6rem">(من console.anthropic.com)</span></label>
-      <input type="password" id="apiKey" placeholder="sk-ant-api03-..." autocomplete="off">
-    </div>
-    <div class="fg">
       <label>نمط الكتابة</label>
       <select id="aiStyle">
         <option value="فخم رسمي">فخم رسمي</option>
@@ -283,6 +280,93 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;heigh
 </aside>
 
 <main class="stage">
+  <svg class="stage-bg" viewBox="0 0 680 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <radialGradient id="skybg" cx="50%" cy="40%" r="75%">
+        <stop offset="0%" stop-color="#0D1B2A"/><stop offset="55%" stop-color="#060E18"/><stop offset="100%" stop-color="#020508"/>
+      </radialGradient>
+      <radialGradient id="glowbg" cx="50%" cy="35%" r="45%">
+        <stop offset="0%" stop-color="#E8C96C" stop-opacity="0.12"/><stop offset="100%" stop-color="#E8C96C" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <rect width="680" height="900" fill="url(#skybg)"/>
+    <rect width="680" height="900" fill="url(#glowbg)"/>
+    <g fill="#FFFFFF" opacity="0.7">
+      <circle cx="60" cy="40" r="1.3"/><circle cx="120" cy="70" r="0.9"/><circle cx="200" cy="28" r="1.6"/>
+      <circle cx="280" cy="55" r="1.0"/><circle cx="350" cy="22" r="1.2"/><circle cx="430" cy="50" r="1.5"/>
+      <circle cx="510" cy="32" r="0.9"/><circle cx="580" cy="62" r="1.3"/><circle cx="640" cy="38" r="1.0"/>
+      <circle cx="90" cy="100" r="0.8"/><circle cx="160" cy="80" r="1.1"/><circle cx="480" cy="88" r="0.9"/>
+      <circle cx="550" cy="105" r="1.2"/><circle cx="30" cy="120" r="1.0"/><circle cx="650" cy="110" r="0.8"/>
+      <circle cx="70" cy="160" r="0.7"/><circle cx="610" cy="150" r="0.9"/><circle cx="250" cy="110" r="0.7"/>
+    </g>
+    <circle cx="340" cy="110" r="44" fill="#F5EDD8"/>
+    <circle cx="358" cy="95" r="44" fill="#060E18"/>
+    <circle cx="340" cy="110" r="43" fill="none" stroke="#E8C96C" stroke-width="1" opacity="0.55"/>
+    <circle cx="340" cy="110" r="62" fill="none" stroke="#E8C96C" stroke-width="18" opacity="0.04"/>
+    <ellipse cx="340" cy="900" rx="400" ry="100" fill="#030810"/>
+    <g fill="#FFFFFF">
+      <rect x="278" y="590" width="18" height="90" rx="3"/><rect x="300" y="590" width="18" height="90" rx="3"/>
+      <rect x="268" y="472" width="58" height="124" rx="4"/>
+      <polygon points="284,472 300,506 284,512" fill="#D0C8B8"/>
+      <polygon points="322,472 300,506 322,512" fill="#D0C8B8"/>
+      <rect x="294" y="475" width="14" height="32" rx="2" fill="#E8E0D0"/>
+      <rect x="250" y="475" width="20" height="96" rx="6"/>
+      <rect x="326" y="475" width="20" height="96" rx="6"/>
+      <ellipse cx="344" cy="572" rx="8" ry="10"/>
+      <rect x="288" y="442" width="20" height="35" rx="4"/>
+      <ellipse cx="298" cy="422" rx="24" ry="28"/>
+      <ellipse cx="298" cy="400" rx="24" ry="11" fill="#E8E0D0"/>
+      <polygon points="293,482 300,490 293,498" fill="#E8C96C"/>
+      <polygon points="307,482 300,490 307,498" fill="#E8C96C"/>
+      <rect x="298" y="484" width="4" height="12" rx="1" fill="#E8C96C"/>
+    </g>
+    <g fill="#FFF8F0">
+      <path d="M322 594 Q275 635 240 730 L440 730 Q405 635 384 594 Z"/>
+      <rect x="326" y="472" width="50" height="128" rx="4"/>
+      <path d="M334 406 Q382 386 415 458 Q390 436 368 482 Q354 450 334 406Z" fill="#F0E8DC" opacity="0.9"/>
+      <rect x="310" y="478" width="18" height="80" rx="6"/>
+      <ellipse cx="316" cy="562" rx="9" ry="9"/>
+      <rect x="342" y="440" width="18" height="36" rx="4"/>
+      <ellipse cx="351" cy="418" rx="22" ry="26"/>
+      <ellipse cx="351" cy="394" rx="18" ry="14" fill="#E8DDD0"/>
+      <circle cx="351" cy="385" r="10" fill="#E8DDD0"/>
+      <path d="M335 594 Q322 642 298 730" stroke="#E8C96C" stroke-width="0.9" fill="none" opacity="0.4"/>
+      <path d="M358 600 Q364 650 370 730" stroke="#E8C96C" stroke-width="0.8" fill="none" opacity="0.35"/>
+    </g>
+    <g>
+      <circle cx="305" cy="554" r="9" fill="#FFFFFF" opacity="0.85"/>
+      <circle cx="296" cy="546" r="7" fill="#F0EAE0" opacity="0.85"/>
+      <circle cx="313" cy="544" r="7" fill="#F0EAE0" opacity="0.85"/>
+      <circle cx="305" cy="554" r="2.8" fill="#E8C96C" opacity="0.65"/>
+    </g>
+    <ellipse cx="330" cy="570" rx="18" ry="10" fill="#E8C96C" opacity="0.1"/>
+    <g stroke="#E8C96C" stroke-width="1" fill="none" opacity="0.5">
+      <path d="M70 730 Q82 670 94 602 Q88 540 108 488"/>
+      <path d="M94 602 Q118 584 130 560 Q112 573 94 602Z" fill="#E8C96C" opacity="0.18"/>
+      <circle cx="108" cy="488" r="10" fill="#E8C96C" fill-opacity="0.13"/>
+      <circle cx="108" cy="488" r="4" fill="#E8C96C" opacity="0.42"/>
+      <ellipse cx="126" cy="472" rx="5" ry="8" fill="#E8C96C" opacity="0.16"/>
+    </g>
+    <g stroke="#E8C96C" stroke-width="1" fill="none" opacity="0.5">
+      <path d="M610 730 Q598 670 586 602 Q592 540 572 488"/>
+      <path d="M586 602 Q562 584 550 560 Q568 573 586 602Z" fill="#E8C96C" opacity="0.18"/>
+      <circle cx="572" cy="488" r="10" fill="#E8C96C" fill-opacity="0.13"/>
+      <circle cx="572" cy="488" r="4" fill="#E8C96C" opacity="0.42"/>
+      <ellipse cx="554" cy="472" rx="5" ry="8" fill="#E8C96C" opacity="0.16"/>
+    </g>
+    <g stroke="#E8C96C" stroke-width="0.9" fill="none" opacity="0.45">
+      <path d="M20 20 L20 68 M20 20 L68 20" stroke-linecap="round"/>
+      <circle cx="20" cy="20" r="3" fill="#E8C96C" opacity="0.55"/>
+    </g>
+    <g stroke="#E8C96C" stroke-width="0.9" fill="none" opacity="0.45" transform="translate(660,20) scale(-1,1)">
+      <path d="M20 0 L20 48 M20 0 L68 0" stroke-linecap="round"/>
+      <circle cx="20" cy="0" r="3" fill="#E8C96C" opacity="0.55"/>
+    </g>
+    <g fill="#FFFFFF" opacity="0.12">
+      <circle cx="150" cy="300" r="2"/><circle cx="185" cy="380" r="1.4"/><circle cx="525" cy="280" r="1.6"/>
+      <circle cx="455" cy="245" r="1.7"/><circle cx="128" cy="460" r="2.2"/><circle cx="545" cy="430" r="1.4"/>
+    </g>
+  </svg>
   <div class="stage-lbl">✦ معاينة فورية ✦</div>
 
   <div id="card" class="t1">
@@ -391,61 +475,30 @@ function updateSize(val){
 async function generateMsg(){
   const btn=document.getElementById('aiBtn');
   const errBox=document.getElementById('aiError');
-  const apiKey=v('apiKey').trim();
-
   errBox.style.display='none';
-
-  if(!apiKey){
-    errBox.textContent='⚠️ أدخل مفتاح Anthropic API أولاً — احصل عليه من console.anthropic.com';
-    errBox.style.display='block'; return;
-  }
-  if(!apiKey.startsWith('sk-ant-')){
-    errBox.textContent='⚠️ المفتاح يبدأ بـ sk-ant- — تأكد من نسخه كامل';
-    errBox.style.display='block'; return;
-  }
-
   btn.style.opacity='.55'; btn.textContent='⏳ جاري التوليد...';
-
-  const prompt=`أنت كاتب دعوات أعراس محترف. اكتب نص دعوة زفاف قصير وجميل باللغة العربية الفصحى.
-البيانات:
-- اسم العريس: ${v('n1')}
-- اسم العروس: ${v('n2')}
-- نمط الكتابة: ${v('aiStyle')}
-- المكان: ${v('venue')}
-الشروط:
-- النص بين 3 و5 سطور فقط
-- لا تذكر التاريخ أو الوقت (سيُضاف تلقائياً)
-- أعطِ فقط النص الجاهز بدون مقدمة أو شرح`;
-
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
+    const res=await fetch('/api/generate',{
       method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-access':'true'
-      },
-      body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:300,messages:[{role:'user',content:prompt}]})
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        groom:v('n1'), bride:v('n2'),
+        style:v('aiStyle'), venue:v('venue')
+      })
     });
-
     if(!res.ok){
       const err=await res.json().catch(()=>({}));
-      const msg = err?.error?.message || `HTTP ${res.status}`;
-      if(res.status===401) errBox.textContent='❌ المفتاح غير صحيح أو منتهي الصلاحية';
-      else if(res.status===429) errBox.textContent='❌ تجاوزت حد الطلبات — انتظر لحظة وحاول ثانية';
-      else errBox.textContent=`❌ خطأ: ${msg}`;
+      errBox.textContent=`❌ خطأ: ${err.error||res.status}`;
       errBox.style.display='block';
     } else {
       const data=await res.json();
-      const txt=data.content?.[0]?.text?.trim();
-      if(txt){
-        document.getElementById('msg').value=txt;
-        document.getElementById('c-msg').textContent=txt;
+      if(data.text){
+        document.getElementById('msg').value=data.text;
+        document.getElementById('c-msg').textContent=data.text;
       }
     }
   }catch(e){
-    errBox.textContent='❌ فشل الاتصال — تأكد من الإنترنت أو أن المتصفح لا يبلوك الطلب';
+    errBox.textContent='❌ فشل الاتصال بالسيرفر';
     errBox.style.display='block';
     console.error(e);
   }

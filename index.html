@@ -601,6 +601,31 @@ select.fancy-input option{background:#222;color:var(--cream)}
 .map-preview{display:flex;align-items:center;gap:.4rem;background:rgba(60,180,60,.08);border:1px solid rgba(60,180,60,.2);border-radius:6px;padding:.35rem .6rem;font-size:.65rem;color:#80d080;margin-top:.3rem}
 .map-preview-ok{margin-right:auto;font-weight:600}
 
+/* ── Payment Modal ── */
+#pay-modal{display:none;position:fixed;inset:0;z-index:500;background:rgba(5,3,1,.85);backdrop-filter:blur(6px);align-items:center;justify-content:center}
+#pay-modal.on{display:flex}
+.pay-box{background:linear-gradient(160deg,#1a1208,#0d0a04);border:1px solid rgba(201,168,76,.3);border-radius:14px;padding:2rem 2rem 1.6rem;max-width:360px;width:92%;text-align:center;position:relative;box-shadow:0 0 60px rgba(201,168,76,.1)}
+.pay-box::before{content:'';position:absolute;inset:0;border-radius:14px;background:radial-gradient(ellipse 200px 80px at 50% 0%,rgba(201,168,76,.08),transparent);pointer-events:none}
+.pay-crown{font-size:2rem;margin-bottom:.5rem}
+.pay-title{font-family:'Cormorant Garamond',serif;font-size:1.5rem;color:var(--gold);font-weight:300;margin-bottom:.3rem}
+.pay-sub{font-size:.72rem;color:var(--gold-lt);opacity:.6;margin-bottom:1.2rem;line-height:1.7}
+.pay-features{list-style:none;margin-bottom:1.4rem;text-align:right}
+.pay-features li{font-size:.75rem;color:var(--gold-lt);opacity:.8;padding:.28rem 0;border-bottom:1px solid rgba(201,168,76,.08)}
+.pay-features li::before{content:'✦ ';color:var(--gold);opacity:.7}
+.pay-price{font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--gold);margin-bottom:1rem}
+.pay-price span{font-size:.85rem;opacity:.6;font-family:'Tajawal',sans-serif}
+.pay-btn{display:block;width:100%;padding:.75rem;background:linear-gradient(90deg,#B8902A,#E8C060,#B8902A);background-size:200%;border:none;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:.9rem;font-weight:700;color:#1a0a02;cursor:pointer;margin-bottom:.7rem;animation:shimmer 3s linear infinite;text-decoration:none;transition:transform .2s}
+.pay-btn:hover{transform:scale(1.02)}
+.pay-divider{font-size:.65rem;color:var(--gold-lt);opacity:.4;margin:.5rem 0}
+.pay-code-row{display:flex;gap:.5rem;margin-bottom:.8rem}
+.pay-code-row input{flex:1;background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.25);border-radius:6px;color:var(--gold-lt);padding:.45rem .7rem;font-size:.8rem;outline:none;text-align:center;letter-spacing:.1em}
+.pay-code-row input::placeholder{opacity:.4}
+.pay-code-btn{background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);color:var(--gold);border-radius:6px;padding:.45rem .9rem;font-size:.78rem;cursor:pointer;white-space:nowrap}
+.pay-code-btn:hover{background:rgba(201,168,76,.25)}
+.pay-close{position:absolute;top:.8rem;left:.9rem;background:none;border:none;color:rgba(201,168,76,.4);font-size:1.1rem;cursor:pointer;line-height:1}
+.pay-close:hover{color:var(--gold)}
+.pay-note{font-size:.6rem;color:var(--gold-lt);opacity:.35;margin-top:.5rem}
+
 /* Loading */
 #loading{display:none;position:fixed;inset:0;background:rgba(10,7,4,.88);z-index:200;align-items:center;justify-content:center;flex-direction:column;gap:1.1rem;backdrop-filter:blur(4px)}
 #loading.on{display:flex}
@@ -854,7 +879,7 @@ select.fancy-input option{background:#222;color:var(--cream)}
         <div class="couple-field-icon">👤</div>
         <div class="couple-field-body">
           <label>العريس</label>
-          <input id="n1" value="محمد عبدالله" oninput="sync()" placeholder="اسم العريس" class="fancy-input">
+          <input id="n1" value="محمد عبدالله" oninput="autoFooter();sync()" placeholder="اسم العريس" class="fancy-input">
         </div>
       </div>
       <div class="couple-heart">♡</div>
@@ -862,7 +887,7 @@ select.fancy-input option{background:#222;color:var(--cream)}
         <div class="couple-field-icon">👤</div>
         <div class="couple-field-body">
           <label>العروس</label>
-          <input id="n2" value="سارة أحمد" oninput="sync()" placeholder="اسم العروس" class="fancy-input">
+          <input id="n2" value="سارة أحمد" oninput="autoFooter();sync()" placeholder="اسم العروس" class="fancy-input">
         </div>
       </div>
     </div>
@@ -949,8 +974,8 @@ select.fancy-input option{background:#222;color:var(--cream)}
   </div>
 
   <div class="sec">
-    <div class="sec-lbl">ختم الدعوة</div>
-    <div class="fg"><input id="footer" value="عائلة الأحمد & عائلة الخالد" oninput="sync()"></div>
+    <div class="sec-lbl">ختم الدعوة <button onclick="resetFooter()" title="توليد تلقائي من الأسماء" style="background:none;border:1px solid rgba(201,168,76,.4);color:var(--gold-lt);border-radius:4px;padding:1px 6px;font-size:.65rem;cursor:pointer;margin-right:4px;opacity:.7">↻ تلقائي</button></div>
+    <div class="fg"><input id="footer" value="عائلة الأحمد & عائلة الخالد" oninput="footerManual=true;sync()"></div>
   </div>
 
   <div class="sec">
@@ -964,16 +989,42 @@ select.fancy-input option{background:#222;color:var(--cream)}
   <div class="sec">
     <div class="sec-lbl">تحميل الدعوة</div>
     <div class="btn-row">
-      <button class="btn btn-ol" onclick="expPNG()">🖼️ PNG</button>
-      <button class="btn btn-sl" onclick="expPDF()">📄 PDF</button>
+      <button class="btn btn-ol" onclick="expPNG()" title="مجاني — بعلامة مائية">🖼️ PNG مجاني</button>
+      <button class="btn btn-sl" onclick="expPDF()" title="مدفوع — بدون علامة مائية">📄 PDF 💎</button>
     </div>
-    <button class="btn-main" onclick="expPDF()">⬇ تحميل الدعوة كاملة</button>
+    <button class="btn-main" onclick="expPDF()">⬇ تحميل PDF الفاخر 💎 $2</button>
   </div>
 
 </aside>
 
 <main class="stage" id="stage">
 <!-- PETALS CANVAS — inside stage only -->
+<!-- ── PAYMENT MODAL ── -->
+<div id="pay-modal">
+  <div class="pay-box">
+    <button class="pay-close" onclick="closePayModal()">✕</button>
+    <div class="pay-crown">💍</div>
+    <div class="pay-title">احفظ دعوتك الفاخرة</div>
+    <p class="pay-sub">تصدير PDF عالي الجودة مع رابط الخريطة<br>دعوة واحدة — دفع مرة واحدة</p>
+    <ul class="pay-features">
+      <li>PDF بجودة احترافية بدون علامة مائية</li>
+      <li>رابط الخريطة قابل للضغط داخل PDF</li>
+      <li>تحميل فوري بعد الدفع</li>
+      <li>يدعم جميع القوالب الـ 17</li>
+    </ul>
+    <div class="pay-price">$2 <span>/ دعوة واحدة</span></div>
+    <a class="pay-btn" href="https://abdking.gumroad.com/l/jkbied" target="_blank" onclick="trackPayClick()">
+      ادفع الآن — $2
+    </a>
+    <div class="pay-divider">— أو أدخل كود الفتح إذا دفعت مسبقاً —</div>
+    <div class="pay-code-row">
+      <input id="unlock-input" placeholder="أدخل الكود هنا" maxlength="20" onkeydown="if(event.key==='Enter')checkCode()">
+      <button class="pay-code-btn" onclick="checkCode()">فتح ✦</button>
+    </div>
+    <p class="pay-note">الكود يُرسل لك تلقائياً بعد إتمام الدفع</p>
+  </div>
+</div>
+
 <div class="petals-wrap" id="petals"></div>
   <svg class="stage-bg" viewBox="0 0 680 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <defs>
@@ -1362,6 +1413,24 @@ function spawnSparkles(){
 /* ─── SYNC ─── */
 function v(id){return document.getElementById(id).value}
 let syncTimer=null;
+let footerManual=false;
+
+function getLastWord(name){
+  const parts=name.trim().split(/\s+/);
+  return parts.length>1?parts[parts.length-1]:parts[0];
+}
+function autoFooter(){
+  if(footerManual)return;
+  const f1=getLastWord(v('n1'));
+  const f2=getLastWord(v('n2'));
+  document.getElementById('footer').value=`عائلة ${f1} & عائلة ${f2}`;
+}
+function resetFooter(){
+  footerManual=false;
+  autoFooter();
+  sync();
+}
+
 function sync(){
   document.getElementById('c-n1').textContent=v('n1');
   document.getElementById('c-n2').textContent=v('n2');
@@ -1369,6 +1438,9 @@ function sync(){
   document.getElementById('c-msg').textContent=v('msg');
   document.getElementById('c-venue').textContent=v('venue');
   document.getElementById('c-footer').textContent=v('footer');
+  // update template preview cards with real names
+  const previewName=`${v('n1')} & ${v('n2')}`;
+  document.querySelectorAll('.tpl-mini-name').forEach(el=>el.textContent=previewName);
   // subtle flash on card
   clearTimeout(syncTimer);
   syncTimer=setTimeout(()=>{
@@ -1569,12 +1641,66 @@ async function capture(){
   card.style.boxShadow=shadow;
   return c;
 }
+/* ── Unlock system ── */
+const SITE='weddinginvite.space';
+// Codes: WI + any 4-digit number divisible by 7 (e.g. WI0007 WI0014 WI2023 WI0777)
+// Generate: for(let i=7;i<9999;i+=7) console.log('WI'+String(i).padStart(4,'0'))
+function isValidCode(code){
+  const c=code.trim().toUpperCase();
+  if(!c.startsWith('WI')||c.length<6)return false;
+  const num=parseInt(c.slice(2));
+  return !isNaN(num)&&num>0&&num%7===0;
+}
+function isUnlocked(){return localStorage.getItem('wi_unlocked')==='1'}
+function unlock(){localStorage.setItem('wi_unlocked','1')}
+
+function openPayModal(){document.getElementById('pay-modal').classList.add('on')}
+function closePayModal(){document.getElementById('pay-modal').classList.remove('on')}
+function trackPayClick(){/* analytics hook */}
+
+function checkCode(){
+  const code=document.getElementById('unlock-input').value;
+  if(isValidCode(code)){
+    unlock();
+    closePayModal();
+    // proceed with PDF
+    expPDF();
+  } else {
+    document.getElementById('unlock-input').style.borderColor='#cc3333';
+    setTimeout(()=>document.getElementById('unlock-input').style.borderColor='',1200);
+  }
+}
+
+/* ── Add watermark to canvas ── */
+function addWatermark(canvas){
+  const ctx=canvas.getContext('2d');
+  ctx.save();
+  ctx.globalAlpha=0.18;
+  ctx.fillStyle='#888';
+  ctx.font=`bold ${canvas.width*0.028}px Arial`;
+  ctx.textAlign='center';
+  ctx.translate(canvas.width/2,canvas.height/2);
+  ctx.rotate(-Math.PI/6);
+  for(let y=-canvas.height;y<canvas.height;y+=canvas.height*0.18){
+    ctx.fillText(SITE,0,y);
+  }
+  ctx.restore();
+  return canvas;
+}
+
 async function expPNG(){
   showLoad('جاري تحضير الصورة...');
-  try{const c=await capture();const a=document.createElement('a');a.download=`دعوة-${v('n1')}-و-${v('n2')}.png`;a.href=c.toDataURL('image/png');a.click();}
-  finally{hideLoad()}
+  try{
+    let c=await capture();
+    if(!isUnlocked())c=addWatermark(c);
+    const a=document.createElement('a');
+    a.download=`دعوة-${v('n1')}-و-${v('n2')}.png`;
+    a.href=c.toDataURL('image/png');
+    a.click();
+  }finally{hideLoad()}
 }
 async function expPDF(){
+  if(!isUnlocked()){openPayModal();return;}
   showLoad('جاري إنشاء ملف PDF...');
   try{
     const c=await capture();const img=c.toDataURL('image/png');

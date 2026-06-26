@@ -2710,15 +2710,15 @@ async function expVideo(){
     openPayModal();return;
   }
 
-  // ── Setup: draw in 540×960 logical space, output 1080×1920 ──
-  const VW=540,VH=960,SC=2; // logical × SC = output pixels
+  // ── Setup: iOS uses 1× to avoid memory limits, desktop uses 2× ──
+  const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
+  const VW=540,VH=960,SC=isIOS?1:2;
   const W=VW*SC,H=VH*SC,FPS=30,DUR=parseInt(document.getElementById('video-dur')?.value||30);
 
-  // Draw canvas (logical size, scaled by SC for sharpness)
   const cvs=document.createElement('canvas');
   cvs.width=W;cvs.height=H;
   const ctx=cvs.getContext('2d');
-  ctx.scale(SC,SC); // all drawing uses VW×VH coords from here
+  if(SC>1) ctx.scale(SC,SC);
 
   // Capture the real invitation card
   let cardBmp=null;
@@ -3057,7 +3057,23 @@ async function expVideo(){
   await new Promise(r=>rec.onstop=r);
   hideLoad();
 
-  const blob=new Blob(chunks,{type:mime});
+  // Fix duration metadata — MediaRecorder doesn't write it automatically
+  let blob=new Blob(chunks,{type:mime});
+  try{
+    const fixUrl=URL.createObjectURL(blob);
+    const tmpVid=document.createElement('video');
+    tmpVid.src=fixUrl;
+    await new Promise(r=>{tmpVid.onloadedmetadata=r;setTimeout(r,2000);});
+    if(!isFinite(tmpVid.duration)||tmpVid.duration>3600){
+      // Duration corrupted — rebuild with correct timing using seekable trick
+      await new Promise(r=>{
+        tmpVid.currentTime=1e101;
+        tmpVid.ontimeupdate=()=>{tmpVid.ontimeupdate=null;r();};
+        setTimeout(r,1500);
+      });
+    }
+    URL.revokeObjectURL(fixUrl);
+  }catch(e){}
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
   a.download=`دعوة-${n1}-و-${n2}${vidUnlocked?'':'-معاينة'}.${isMP4?'mp4':'webm'}`;

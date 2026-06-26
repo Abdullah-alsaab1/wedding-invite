@@ -2161,7 +2161,7 @@ if(new URLSearchParams(location.search).get('_reset')==='1'){
 </main>
 </div>
 
-<div id="loading"><div class="spin"></div><div class="spin-txt" id="spintxt">جاري التجهيز...</div></div>
+<div id="loading"><div class="spin"></div><div class="spin-txt" id="spintxt">جاري التجهيز...</div><button id="cancel-video-btn" onclick="cancelVideo()" style="display:none;margin-top:.8rem;background:rgba(231,76,60,.15);border:1px solid rgba(231,76,60,.5);color:#e74c3c;border-radius:8px;padding:.5rem 1.4rem;font-family:'Tajawal',sans-serif;font-size:.82rem;cursor:pointer">✕ إلغاء الفيديو</button></div>
 
 <script>
 /* ─── CONSTANTS ─── */
@@ -2382,8 +2382,20 @@ async function generateMsg(){
 }
 
 /* ─── EXPORT ─── */
-function showLoad(m){document.getElementById('spintxt').textContent=m||'جاري التجهيز...';document.getElementById('loading').classList.add('on')}
-function hideLoad(){document.getElementById('loading').classList.remove('on')}
+let _videoCancelled=false;
+function cancelVideo(){_videoCancelled=true;}
+function showLoad(m,showCancel=false){
+  document.getElementById('spintxt').textContent=m||'جاري التجهيز...';
+  document.getElementById('loading').classList.add('on');
+  const btn=document.getElementById('cancel-video-btn');
+  if(btn) btn.style.display=showCancel?'block':'none';
+}
+function hideLoad(){
+  document.getElementById('loading').classList.remove('on');
+  const btn=document.getElementById('cancel-video-btn');
+  if(btn) btn.style.display='none';
+  _videoCancelled=false;
+}
 /* ── Capture: inline all computed styles then use html2canvas ── */
 
 // Inline computed styles — excludes animation-affected props to avoid opacity:0 freeze
@@ -2785,7 +2797,8 @@ async function expVideo(){
   const chunks=[];
   rec.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data);};
 
-  showLoad(`🎬 جاري إنشاء الفيديو… انتظر ~${DUR} ثانية`);
+  _videoCancelled=false;
+  showLoad(`🎬 جاري إنشاء الفيديو… انتظر ~${DUR} ثانية`, true);
 
   const CX=VW/2, CY=VH/2;
   const easeOut=t=>1-Math.pow(1-t,3);
@@ -3063,6 +3076,7 @@ async function expVideo(){
   const t0=performance.now();
   await new Promise(resolve=>{
     function tick(){
+      if(_videoCancelled){resolve();return;}
       const elapsed=(performance.now()-t0)/1000;
       if(elapsed>=DUR){renderFrame(Math.floor(DUR*FPS)-1);resolve();return;}
       renderFrame(Math.min(Math.floor(elapsed*FPS),FPS*DUR-1));
@@ -3070,6 +3084,7 @@ async function expVideo(){
     }
     requestAnimationFrame(tick);
   });
+  if(_videoCancelled){rec.stop();hideLoad();return;}
 
   rec.stop();
   await new Promise(r=>rec.onstop=r);

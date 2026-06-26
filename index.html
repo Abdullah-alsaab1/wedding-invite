@@ -2619,7 +2619,7 @@ async function expVideo(){
 
   // ── Setup: draw in 540×960 logical space, output 1080×1920 ──
   const VW=540,VH=960,SC=2; // logical × SC = output pixels
-  const W=VW*SC,H=VH*SC,FPS=30,DUR=15;
+  const W=VW*SC,H=VH*SC,FPS=30,DUR=22;
 
   // Draw canvas (logical size, scaled by SC for sharpness)
   const cvs=document.createElement('canvas');
@@ -2760,7 +2760,7 @@ async function expVideo(){
 
   // ── PHASE 2: Card opens — reveal clip scrolls down (3-5s) ──
   function drawOpeningCard(t){
-    const openT=easeOut(clamp((t-3)/2,0,1));
+    const openT=easeOut(clamp((t-5)/3.5,0,1));
     const cx=CX, cy=CY*.9;
     const cw=490, ch=680;
     const x=cx-cw/2, y=cy-ch/2;
@@ -2798,7 +2798,7 @@ async function expVideo(){
 
   // ── PHASE 3: Full invitation (5-14s) ──
   function drawFullCard(t){
-    const p=clamp((t-5)/8,0,1);
+    const p=clamp((t-9)/11,0,1);
     const cx=CX, cy=CY*.88;
     const cw=490, ch=780;
     const x=cx-cw/2, y=cy-ch/2;
@@ -2894,15 +2894,15 @@ async function expVideo(){
     // Fade in
     if(t<.4){ctx.fillStyle=`rgba(7,5,3,${1-t/.4})`;ctx.fillRect(0,0,VW,VH);}
 
-    if(t<3.2) drawClosedCard(t);
-    else if(t<5){
+    if(t<5.2) drawClosedCard(t);
+    else if(t<9){
       drawOpeningCard(t);
-      if(!burstDone&&t>4){burst(CX,CY*.9,30);burstDone=true;}
+      if(!burstDone&&t>7.5){burst(CX,CY*.9,30);burstDone=true;}
     }
     else drawFullCard(t);
 
     // Final fade
-    if(t>13.5){const fa=clamp((t-13.5)/1,0,1);ctx.fillStyle=`rgba(7,5,3,${fa})`;ctx.fillRect(0,0,VW,VH);}
+    if(t>20.5){const fa=clamp((t-20.5)/1.2,0,1);ctx.fillStyle=`rgba(7,5,3,${fa})`;ctx.fillRect(0,0,VW,VH);}
   }
 
   const totalFrames=FPS*DUR;

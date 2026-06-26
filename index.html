@@ -2626,14 +2626,15 @@ async function expVideo(){
   let cardImg=null;
   try{
     const captured=await capture();
-    cardImg=await createImageBitmap(await(await fetch(captured.toDataURL())).blob());
+    cardImg=await createImageBitmap(captured); // direct canvas→bitmap, no fetch needed
   }catch(e){}
 
-  // Data from inputs
-  const n1=v('n1')||'العريس';
-  const n2=v('n2')||'العروسة';
-  const dateVal=v('date')||'';
-  const venue=v('venue')||'';
+  // Data from inputs (safe read — element might not exist)
+  const gi=id=>{const el=document.getElementById(id);return el?el.value.trim():''};
+  const n1=gi('n1')||'العريس';
+  const n2=gi('n2')||'العروسة';
+  const dateVal=gi('date')||'';
+  const venue=gi('venue')||'';
 
   // MediaRecorder setup
   const stream=cvs.captureStream(FPS);

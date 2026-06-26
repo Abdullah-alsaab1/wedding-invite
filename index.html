@@ -1323,7 +1323,7 @@ select.fancy-input option{background:#222;color:var(--cream)}
     </div>
   </div>
 
-  <div class="sec">
+  <div class="sec" id="download-sec">
     <div class="sec-lbl">تحميل الدعوة</div>
     <div class="btn-row">
       <button class="btn btn-ol" onclick="expPNG()" title="مجاني — بعلامة مائية">🖼️ PNG مجاني</button>
@@ -1337,8 +1337,8 @@ select.fancy-input option{background:#222;color:var(--cream)}
 <main class="stage" id="stage">
 <!-- PETALS CANVAS — inside stage only -->
 <!-- ── FREE BANNER ── -->
-<div id="free-banner">
-  <span id="free-banner-text">🎁 أول تحميل PDF لك مجاني تماماً — جرّب الآن!</span>
+<div id="free-banner" onclick="document.getElementById('download-sec').scrollIntoView({behavior:'smooth',block:'center'})" style="cursor:pointer">
+  <span id="free-banner-text">🎁 أول تحميل PDF لك مجاني تماماً — انقر هنا!</span>
 </div>
 
 <!-- ── DEV RESET via URL param ?_reset=1 ── -->

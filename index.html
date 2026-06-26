@@ -2205,46 +2205,19 @@ function recordAttempt(){
 function esc(str){const d=document.createElement('div');d.textContent=str;return d.innerHTML;}
 
 /* visitor counter + free banner */
-(async function loadStats(){
+(function loadStats(){
   const banner=document.getElementById('free-banner');
-  const leftEl=document.getElementById('free-left');
   const mainBtn=document.getElementById('pdf-main-btn');
   const smallBtn=document.getElementById('pdf-small-btn');
   const alreadyUsed=localStorage.getItem('wi_free_used')==='1';
 
-  function setFreeUI(left){
-    if(banner&&leftEl){leftEl.textContent=left;banner.classList.add('on');}
-    if(!alreadyUsed&&!isUnlocked()){
-      if(mainBtn)mainBtn.textContent=`🎁 تحميل PDF مجاني (باقي ${left})`;
-      if(smallBtn){smallBtn.textContent='📄 PDF مجاني 🎁';smallBtn.title='مجاني للأوائل';}
-    }
-  }
-  function setPaidUI(){
-    if(banner)banner.classList.remove('on');
-    if(mainBtn)mainBtn.textContent='⬇ تحميل PDF الفاخر 💎 $2';
-    if(smallBtn){smallBtn.textContent='📄 PDF 💎';smallBtn.title='PDF بدون علامة مائية';}
-  }
-
-  // show default immediately
   if(!alreadyUsed&&!isUnlocked()){
-    setFreeUI(FREE_LIMIT);
+    if(banner)banner.classList.add('on');
+    if(mainBtn)mainBtn.textContent='🎁 تحميل PDF مجاني — أول مرة ببلاش!';
+    if(smallBtn){smallBtn.textContent='📄 PDF مجاني 🎁';smallBtn.title='مجاني لأول مرة';}
+  } else {
+    if(banner)banner.classList.remove('on');
   }
-
-  try{
-    const rv=await fetch('https://api.countapi.xyz/hit/weddinginvite-space/visits');
-    const dv=await rv.json();
-    const el=document.getElementById('vc-num');
-    if(el&&dv.value)el.textContent=Number(dv.value).toLocaleString('ar');
-  }catch(e){}
-
-  try{
-    const rp=await fetch('https://api.countapi.xyz/get/weddinginvite-space/pdf-downloads');
-    const dp=await rp.json();
-    const used=dp.value??0;
-    const left=FREE_LIMIT-used;
-    if(left<=0){setPaidUI();}
-    else{setFreeUI(left);}
-  }catch(e){}
 })();
 
 /* auto-unlock from Gumroad redirect */
@@ -2318,36 +2291,22 @@ async function expPNG(){
     a.click();
   }finally{hideLoad()}
 }
-async function checkFreeSlots(){
-  try{
-    const r=await fetch('https://api.countapi.xyz/get/weddinginvite-space/pdf-downloads');
-    if(!r.ok)return true;
-    const d=await r.json();
-    return(d.value??0)<FREE_LIMIT;
-  }catch{return true;}
-}
-async function incrementPDFCount(){
-  try{await fetch('https://api.countapi.xyz/hit/weddinginvite-space/pdf-downloads');}catch{}
+function checkFreeSlots(){
+  return localStorage.getItem('wi_free_used')!=='1';
 }
 
 async function expPDF(){
-  const alreadyUsedFree=localStorage.getItem('wi_free_used')==='1';
-  const free=!alreadyUsedFree&&await checkFreeSlots();
+  const free=checkFreeSlots();
   if(!free&&!isUnlocked()){openPayModal();return;}
   if(free){
-    try{
-      const r=await fetch('https://api.countapi.xyz/get/weddinginvite-space/pdf-downloads');
-      if(r.ok){
-        const d=await r.json();
-        const left=FREE_LIMIT-(d.value||0);
-        if(left>0&&left<=20){
-          const ok=confirm(`🎁 باقي ${left} مكان مجاني فقط! هل تريد التحميل؟`);
-          if(!ok)return;
-        }
-      }
-    }catch(e){}
-    await incrementPDFCount();
     localStorage.setItem('wi_free_used','1');
+    // update UI to paid after using free slot
+    const mainBtn=document.getElementById('pdf-main-btn');
+    const smallBtn=document.getElementById('pdf-small-btn');
+    const banner=document.getElementById('free-banner');
+    if(mainBtn)mainBtn.textContent='⬇ تحميل PDF الفاخر 💎 $2';
+    if(smallBtn){smallBtn.textContent='📄 PDF 💎';smallBtn.title='PDF بدون علامة مائية';}
+    if(banner)banner.classList.remove('on');
   }
   showLoad('جاري إنشاء ملف PDF...');
   try{

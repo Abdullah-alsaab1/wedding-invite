@@ -3105,6 +3105,7 @@ async function expPDF(){
 
 /* ── Chat Widget (FAQ self-learning) ── */
 let chatOpen=false;
+let chatHistory=[];
 
 const FAQ=[
   {kw:['سعر','كم','تكلف','كلفة','بكم','بكام','غالي','رخيص','دولار','$','مجاني','مجانا','ببلاش','مجانية'],
@@ -3237,14 +3238,26 @@ async function sendChat(){
 
   if(match){
     addMsg(match.answer,'bot');
+    send.disabled=false;
+    input.focus();
   }else{
-    addMsg('سؤال جديد! 📝 وصلنا سؤالك وسنضيف إجابته قريباً. للمساعدة الفورية: kingdeed130@gmail.com','bot');
-    // log unknown question so admin can add it to faq.json
+    // FAQ miss → ask Claude API
     fetch('/api/learn',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:msg})}).catch(()=>{});
+    try{
+      const r=await fetch('/api/chat',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({message:msg,history:chatHistory.slice(-6)})
+      });
+      const d=await r.json();
+      addMsg(d.reply||'تواصل معنا على kingdeed130@gmail.com','bot');
+      chatHistory.push({role:'user',content:msg},{role:'assistant',content:d.reply||''});
+    }catch(e){
+      addMsg('عذراً حدث خطأ، تواصل معنا على kingdeed130@gmail.com','bot');
+    }
+    send.disabled=false;
+    input.focus();
   }
-
-  send.disabled=false;
-  input.focus();
 }
 
 window.addEventListener('DOMContentLoaded',()=>{

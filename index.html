@@ -3041,16 +3041,16 @@ async function expVideo(){
     }
   }
 
-  const totalFrames=FPS*DUR;
-  let frame=0;
   rec.start();
+  const t0=performance.now();
   await new Promise(resolve=>{
-    function next(){
-      if(frame>=totalFrames){resolve();return;}
-      renderFrame(frame++);
-      setTimeout(next,1000/FPS);
+    function tick(){
+      const elapsed=(performance.now()-t0)/1000;
+      if(elapsed>=DUR){renderFrame(Math.floor(DUR*FPS)-1);resolve();return;}
+      renderFrame(Math.min(Math.floor(elapsed*FPS),FPS*DUR-1));
+      requestAnimationFrame(tick);
     }
-    next();
+    requestAnimationFrame(tick);
   });
 
   rec.stop();

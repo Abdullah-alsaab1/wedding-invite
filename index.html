@@ -2492,10 +2492,13 @@ function isValidCode(code){
   const prev=m===1?monthCode(y-1,12):monthCode(y,m-1);
   return c===monthCode(y,m)||c===prev;
 }
-function isUnlocked(){const e=localStorage.getItem('wi_expiry');return e&&Date.now()<parseInt(e)}
-function unlock(){localStorage.setItem('wi_expiry',String(Date.now()+UNLOCK_HOURS*3600*1000))}
+function isUnlocked(){const e=localStorage.getItem('wi_expiry_v2');return e&&Date.now()<parseInt(e)}
+function unlock(){
+  ['wi_expiry','wi_sale','wi_token'].forEach(k=>localStorage.removeItem(k));
+  localStorage.setItem('wi_expiry_v2',String(Date.now()+UNLOCK_HOURS*3600*1000));
+}
 function getTimeLeft(){
-  const e=parseInt(localStorage.getItem('wi_expiry')||'0');
+  const e=parseInt(localStorage.getItem('wi_expiry_v2')||'0');
   const ms=e-Date.now();if(ms<=0)return'';
   const h=Math.floor(ms/3600000),m=Math.floor((ms%3600000)/60000);
   return h>0?`${h} ساعة و${m} دقيقة`:`${m} دقيقة`;
@@ -2576,8 +2579,6 @@ if(document.readyState==='loading'){
       const res=await fetch(`/api/check?sale=${encodeURIComponent(sale)}&token=${encodeURIComponent(token)}`);
       const data=await res.json();
       if(data.valid){
-        localStorage.setItem('wi_sale',sale);
-        localStorage.setItem('wi_token',token);
         unlock();
         setTimeout(()=>alert(`✦ تم الدفع بنجاح! لديك ${UNLOCK_HOURS} ساعة لتصدير PDF`),800);
       } else {
@@ -2632,10 +2633,7 @@ async function verifyPayPalOrder(){
     const d=await r.json();
 
     if(d.ok && d.sale && d.token){
-      // Valid payment — unlock
-      localStorage.setItem('wi_sale', d.sale);
-      localStorage.setItem('wi_token', d.token);
-      localStorage.setItem('wi_expiry', Date.now()+365*24*3600*1000);
+      unlock();
       document.getElementById('pp-overlay').remove();
       closePayModal();
       showToast('🎉 تم التحقق من دفعك! الموقع مفتوح الآن');

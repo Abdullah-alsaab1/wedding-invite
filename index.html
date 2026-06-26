@@ -2767,8 +2767,7 @@ async function expVideo(){
   const chunks=[];
   rec.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data);};
 
-  showLoad('🎬 جاري إنشاء الفيديو… انتظر ~20 ثانية');
-  rec.start();
+  showLoad(`🎬 جاري إنشاء الفيديو… انتظر ~${DUR} ثانية`);
 
   const CX=VW/2, CY=VH/2;
   const easeOut=t=>1-Math.pow(1-t,3);
@@ -3044,11 +3043,12 @@ async function expVideo(){
 
   const totalFrames=FPS*DUR;
   let frame=0;
+  rec.start();
   await new Promise(resolve=>{
     function next(){
       if(frame>=totalFrames){resolve();return;}
       renderFrame(frame++);
-      setTimeout(next,0);
+      setTimeout(next,1000/FPS);
     }
     next();
   });

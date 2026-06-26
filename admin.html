@@ -80,8 +80,8 @@ async function loadStats(){
     const dv = await rv.json();
     const dp = await rp.json();
 
-    const visits = dv.count || 0;
-    const pdfs   = dp.count || 0;
+    const visits = dv.value || 0;
+    const pdfs   = dp.value || 0;
     const freeLeft = Math.max(0, FREE_LIMIT - pdfs);
     const rate = visits > 0 ? ((pdfs/visits)*100).toFixed(1)+'%' : '0%';
 

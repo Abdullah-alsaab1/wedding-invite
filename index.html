@@ -1776,12 +1776,12 @@ function esc(str){const d=document.createElement('div');d.textContent=str;return
     const rv=await fetch('https://api.countapi.xyz/hit/weddinginvite-space/visits');
     const dv=await rv.json();
     const el=document.getElementById('vc-num');
-    if(el&&dv.count)el.textContent=Number(dv.count).toLocaleString('ar');
+    if(el&&dv.value)el.textContent=Number(dv.value).toLocaleString('ar');
 
     // free PDF banner
     const rp=await fetch('https://api.countapi.xyz/get/weddinginvite-space/pdf-downloads');
     const dp=await rp.json();
-    const used=dp.count||0;
+    const used=dp.value||0;
     const left=FREE_LIMIT-used;
     if(left>0){
       const banner=document.getElementById('free-banner');
@@ -1870,7 +1870,7 @@ async function checkFreeSlots(){
   try{
     const r=await fetch('https://api.countapi.xyz/get/weddinginvite-space/pdf-downloads');
     const d=await r.json();
-    return(d.count||0)<FREE_LIMIT;
+    return(d.value||0)<FREE_LIMIT;
   }catch{return false;}
 }
 async function incrementPDFCount(){
@@ -1884,7 +1884,7 @@ async function expPDF(){
   if(free){
     const r=await fetch('https://api.countapi.xyz/get/weddinginvite-space/pdf-downloads');
     const d=await r.json();
-    const left=FREE_LIMIT-(d.count||0);
+    const left=FREE_LIMIT-(d.value||0);
     if(left>0&&left<=20){
       const ok=confirm(`🎁 باقي ${left} مكان مجاني فقط! هل تريد التحميل؟`);
       if(!ok)return;

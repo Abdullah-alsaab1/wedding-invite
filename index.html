@@ -3014,10 +3014,25 @@ async function expPNG(){
     a.click();
   }finally{hideLoad()}
 }
-const MAX_FREE = 3; // أقصى عدد تحميلات مجانية
+const MAX_FREE = 3;
 
+function _cookieCount(){
+  const m=document.cookie.match(/(?:^|;\s*)wi_fc=(\d+)/);
+  return m?parseInt(m[1]):0;
+}
+function _setCookieCount(n){
+  const exp=new Date(Date.now()+90*24*3600*1000).toUTCString();
+  document.cookie=`wi_fc=${n};expires=${exp};path=/;SameSite=Lax`;
+}
 function getFreeCount(){
-  return parseInt(localStorage.getItem('wi_free_count')||'0');
+  // Take the MAX across all storage — harder to reset
+  const ls=parseInt(localStorage.getItem('wi_free_count')||'0');
+  const ck=_cookieCount();
+  const val=Math.max(ls,ck);
+  // Sync back so both are up to date
+  if(ls<val) localStorage.setItem('wi_free_count',val);
+  if(ck<val) _setCookieCount(val);
+  return val;
 }
 function freeRemaining(){
   return Math.max(0, MAX_FREE - getFreeCount());
@@ -3030,6 +3045,7 @@ async function expPDF(){
   if(remaining>0){
     const newCount = getFreeCount()+1;
     localStorage.setItem('wi_free_count', newCount);
+    _setCookieCount(newCount);
     const left = MAX_FREE - newCount;
     const mainBtn=document.getElementById('pdf-main-btn');
     const smallBtn=document.getElementById('pdf-small-btn');

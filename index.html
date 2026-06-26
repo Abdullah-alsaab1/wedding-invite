@@ -1448,7 +1448,7 @@ function closeSplash(){
         <div class="couple-field-icon">👤</div>
         <div class="couple-field-body">
           <label>العريس</label>
-          <input id="n1" value="محمد عبدالله" oninput="autoFooter();sync()" placeholder="اسم العريس" class="fancy-input">
+          <input id="n1" value="" oninput="autoFooter();sync()" placeholder="اسم العريس واسم العيلة" class="fancy-input">
         </div>
       </div>
       <div class="couple-heart">♡</div>
@@ -1456,7 +1456,7 @@ function closeSplash(){
         <div class="couple-field-icon">👤</div>
         <div class="couple-field-body">
           <label>العروس</label>
-          <input id="n2" value="سارة أحمد" oninput="autoFooter();sync()" placeholder="اسم العروس" class="fancy-input">
+          <input id="n2" value="" oninput="autoFooter();sync()" placeholder="اسم العروسة واسم العيلة" class="fancy-input">
         </div>
       </div>
     </div>
@@ -2756,7 +2756,7 @@ async function expVideo(){
 
   // Input data
   const gi=id=>{const el=document.getElementById(id);return el?el.value.trim():''};
-  const n1=gi('n1')||'العريس', n2=gi('n2')||'العروسة';
+  const n1=gi('n1')||'اسم العريس', n2=gi('n2')||'اسم العروسة';
   const dateVal=document.getElementById('c-date')?.textContent||gi('dateG')||'', venue=gi('venue')||'';
   const msg=gi('msg')||'', footer=gi('footer')||'';
 

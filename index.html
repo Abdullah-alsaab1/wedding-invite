@@ -2307,13 +2307,17 @@ async function expPDF(){
   const free=!alreadyUsedFree&&await checkFreeSlots();
   if(!free&&!isUnlocked()){openPayModal();return;}
   if(free){
-    const r=await fetch('https://api.countapi.xyz/get/weddinginvite-space/pdf-downloads');
-    const d=await r.json();
-    const left=FREE_LIMIT-(d.value||0);
-    if(left>0&&left<=20){
-      const ok=confirm(`🎁 باقي ${left} مكان مجاني فقط! هل تريد التحميل؟`);
-      if(!ok)return;
-    }
+    try{
+      const r=await fetch('https://api.countapi.xyz/get/weddinginvite-space/pdf-downloads');
+      if(r.ok){
+        const d=await r.json();
+        const left=FREE_LIMIT-(d.value||0);
+        if(left>0&&left<=20){
+          const ok=confirm(`🎁 باقي ${left} مكان مجاني فقط! هل تريد التحميل؟`);
+          if(!ok)return;
+        }
+      }
+    }catch(e){}
     await incrementPDFCount();
     localStorage.setItem('wi_free_used','1');
   }

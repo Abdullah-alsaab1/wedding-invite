@@ -1304,6 +1304,18 @@ select.fancy-input option{background:#222;color:var(--cream)}
 <!-- ── FREE BANNER ── -->
 <div id="free-banner">🎁 أول <span id="free-left">100</span> دعوة مجانية — لا تفوّت فرصتك!</div>
 
+<!-- ── DEV RESET (hidden, Ctrl+Shift+R) ── -->
+<script>
+document.addEventListener('keydown',function(e){
+  if(e.ctrlKey&&e.shiftKey&&e.key==='R'){
+    localStorage.removeItem('wi_free_used');
+    localStorage.removeItem('wi_expiry');
+    localStorage.removeItem('wi_token');
+    location.reload();
+  }
+});
+</script>
+
 <!-- ── CONTACT BUTTON ── -->
 <button id="contact-btn" onclick="document.getElementById('contact-modal').classList.add('on')">✉ تواصل معنا</button>
 

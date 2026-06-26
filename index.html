@@ -1769,27 +1769,29 @@ function recordAttempt(){
 /* sanitize text before inserting into DOM */
 function esc(str){const d=document.createElement('div');d.textContent=str;return d.innerHTML;}
 
-/* visitor counter */
+/* visitor counter + free banner */
 (async function loadStats(){
+  // show banner immediately by default
+  const banner=document.getElementById('free-banner');
+  const leftEl=document.getElementById('free-left');
+  if(banner&&leftEl){leftEl.textContent=FREE_LIMIT;banner.classList.add('on');}
+
   try{
-    // visitor counter
     const rv=await fetch('https://api.countapi.xyz/hit/weddinginvite-space/visits');
     const dv=await rv.json();
     const el=document.getElementById('vc-num');
     if(el&&dv.value)el.textContent=Number(dv.value).toLocaleString('ar');
+  }catch(e){}
 
-    // free PDF banner
+  try{
     const rp=await fetch('https://api.countapi.xyz/get/weddinginvite-space/pdf-downloads');
     const dp=await rp.json();
-    const used=dp.value||0;
+    const used=dp.value??0;
     const left=FREE_LIMIT-used;
-    if(left>0){
-      const banner=document.getElementById('free-banner');
-      const leftEl=document.getElementById('free-left');
-      if(banner&&leftEl){
-        leftEl.textContent=left;
-        banner.classList.add('on');
-      }
+    if(left<=0){
+      if(banner)banner.classList.remove('on');
+    } else {
+      if(leftEl)leftEl.textContent=left;
     }
   }catch(e){}
 })();
@@ -1870,8 +1872,9 @@ async function checkFreeSlots(){
   try{
     const r=await fetch('https://api.countapi.xyz/get/weddinginvite-space/pdf-downloads');
     const d=await r.json();
-    return(d.value||0)<FREE_LIMIT;
-  }catch{return false;}
+    const used=d.value??0;
+    return used<FREE_LIMIT;
+  }catch{return true;}
 }
 async function incrementPDFCount(){
   try{await fetch('https://api.countapi.xyz/hit/weddinginvite-space/pdf-downloads');}catch{}

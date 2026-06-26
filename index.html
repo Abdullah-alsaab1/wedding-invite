@@ -2613,315 +2613,339 @@ function addWatermark(canvas){
   return canvas;
 }
 
-/* ── roundRect polyfill for older Chrome ── */
-if(!CanvasRenderingContext2D.prototype.roundRect){
-  CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){
-    r=Math.min(r,w/2,h/2);
-    this.moveTo(x+r,y);this.lineTo(x+w-r,y);this.arcTo(x+w,y,x+w,y+r,r);
-    this.lineTo(x+w,y+h-r);this.arcTo(x+w,y+h,x+w-r,y+h,r);
-    this.lineTo(x+r,y+h);this.arcTo(x,y+h,x,y+h-r,r);
-    this.lineTo(x,y+r);this.arcTo(x,y,x+r,y,r);this.closePath();
-    return this;
-  };
-}
-
 /* ── Video Export ── */
 async function expVideo(){
   if(!isUnlocked()){openPayModal();return;}
 
-  const W=1080,H=1920,FPS=30,DUR=12; // 9:16 portrait full HD
+  // ── Setup: draw in 540×960 logical space, output 1080×1920 ──
+  const VW=540,VH=960,SC=2; // logical × SC = output pixels
+  const W=VW*SC,H=VH*SC,FPS=30,DUR=15;
+
+  // Draw canvas (logical size, scaled by SC for sharpness)
   const cvs=document.createElement('canvas');
   cvs.width=W;cvs.height=H;
   const ctx=cvs.getContext('2d');
+  ctx.scale(SC,SC); // all drawing uses VW×VH coords from here
 
-  // Capture the invitation card as image
-  let cardImg=null;
-  try{
-    const captured=await capture();
-    cardImg=await createImageBitmap(captured); // direct canvas→bitmap, no fetch needed
-  }catch(e){}
+  // Capture the real invitation card
+  let cardBmp=null;
+  try{ cardBmp=await createImageBitmap(await capture()); }catch(e){}
 
-  // Data from inputs (safe read — element might not exist)
+  // Input data
   const gi=id=>{const el=document.getElementById(id);return el?el.value.trim():''};
-  const n1=gi('n1')||'العريس';
-  const n2=gi('n2')||'العروسة';
-  const dateVal=gi('date')||'';
-  const venue=gi('venue')||'';
+  const n1=gi('n1')||'العريس', n2=gi('n2')||'العروسة';
+  const dateVal=gi('date')||'', venue=gi('venue')||'';
+  const msg=gi('msg')||'', footer=gi('footer')||'';
 
-  // MediaRecorder setup
+  // Recording
   const stream=cvs.captureStream(FPS);
-  const mime=MediaRecorder.isTypeSupported('video/mp4')?'video/mp4':'video/webm;codecs=vp9';
-  const rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:4000000});
+  const mime=MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+    ?'video/webm;codecs=vp9':'video/webm';
+  const rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:6000000});
   const chunks=[];
   rec.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data);};
 
-  showLoad('🎬 جاري إنشاء الفيديو… قد يستغرق 15 ثانية');
+  showLoad('🎬 جاري إنشاء الفيديو… انتظر ~20 ثانية');
   rec.start();
 
-  const totalFrames=FPS*DUR;
-  let frame=0;
-
-  // Helper: easing
+  const CX=VW/2, CY=VH/2;
   const easeOut=t=>1-Math.pow(1-t,3);
-  const easeIn=t=>t*t*t;
-  const lerp=(a,b,t)=>a+(b-a)*t;
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const alpha=(t,start,dur)=>easeOut(clamp((t-start)/dur,0,1));
 
-  // Stars array
-  const stars=Array.from({length:80},()=>({
-    x:Math.random()*W,y:Math.random()*H,
-    r:Math.random()*1.5+.5,
-    phase:Math.random()*Math.PI*2,spd:Math.random()*.04+.02
+  // Stars (fixed positions in logical space)
+  const stars=Array.from({length:100},()=>({
+    x:Math.random()*VW, y:Math.random()*VH,
+    r:Math.random()*1.2+.3,
+    phase:Math.random()*Math.PI*2, spd:Math.random()*.03+.01
   }));
 
-  // Particles
-  const particles=[];
-  function spawnParticles(cx,cy){
-    for(let i=0;i<18;i++) particles.push({
-      x:cx,y:cy,
-      vx:(Math.random()-.5)*8,vy:(Math.random()-1)*10,
-      life:1,decay:Math.random()*.04+.025,
-      r:Math.random()*3+1,hue:Math.random()<.5?45:30
+  // Gold particles
+  const parts=[];
+  const burst=(x,y,n=24)=>{
+    for(let i=0;i<n;i++) parts.push({
+      x,y, vx:(Math.random()-.5)*6, vy:(Math.random()-1.2)*7,
+      life:1, d:Math.random()*.03+.02, r:Math.random()*2.5+.8
     });
+  };
+
+  function rr(x,y,w,h,r){
+    ctx.beginPath();
+    r=Math.min(r,w/2,h/2);
+    ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.arcTo(x+w,y,x+w,y+r,r);
+    ctx.lineTo(x+w,y+h-r);ctx.arcTo(x+w,y+h,x+w-r,y+h,r);
+    ctx.lineTo(x+r,y+h);ctx.arcTo(x,y+h,x,y+h-r,r);
+    ctx.lineTo(x,y+r);ctx.arcTo(x,y,x+r,y,r);ctx.closePath();
   }
 
   function drawBg(t){
-    ctx.fillStyle='#080604';
-    ctx.fillRect(0,0,W,H);
-    // Vignette
-    const vg=ctx.createRadialGradient(W/2,H/2,H*.1,W/2,H/2,H*.75);
-    vg.addColorStop(0,'transparent');
-    vg.addColorStop(1,'rgba(0,0,0,.55)');
-    ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#070503';
+    ctx.fillRect(0,0,VW,VH);
+    // Warm gold vignette glow at center
+    const g=ctx.createRadialGradient(CX,CY*0.7,0,CX,CY*0.7,VW*.7);
+    g.addColorStop(0,'rgba(60,35,5,.18)');g.addColorStop(1,'transparent');
+    ctx.fillStyle=g;ctx.fillRect(0,0,VW,VH);
     // Stars
     stars.forEach(s=>{
-      const a=.15+.15*Math.sin(s.phase+t*s.spd*2*Math.PI);
+      const a=.08+.12*Math.sin(s.phase+t*s.spd*Math.PI*2);
       ctx.beginPath();ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
-      ctx.fillStyle=`rgba(255,255,255,${a})`;ctx.fill();
+      ctx.fillStyle=`rgba(255,248,220,${a})`;ctx.fill();
     });
   }
 
-  function drawEnvelope(cx,cy,scale,openRatio){
-    const ew=320*scale,eh=240*scale;
-    const x=cx-ew/2,y=cy-eh/2;
-    // Body
-    const bg=ctx.createLinearGradient(x,y,x,y+eh);
-    bg.addColorStop(0,'#F8EFDA');bg.addColorStop(1,'#E8D5A8');
-    ctx.fillStyle=bg;
-    ctx.beginPath();ctx.roundRect(x,y,ew,eh,8*scale);ctx.fill();
-    ctx.strokeStyle='rgba(201,168,76,.6)';ctx.lineWidth=2*scale;ctx.stroke();
-    // Side flaps (V shape bottom)
-    ctx.fillStyle='#EEDFC0';
-    ctx.beginPath();ctx.moveTo(x,y+eh);ctx.lineTo(cx,cy+30*scale);ctx.lineTo(x+ew,y+eh);ctx.fill();
-    ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(cx,cy+30*scale);ctx.lineTo(x+ew,y);
-    ctx.fillStyle='#F0E5C8';ctx.fill();
-    // Top flap opening
-    if(openRatio>0){
-      ctx.save();
-      ctx.translate(cx,y);
-      ctx.scale(1,openRatio>1?1:openRatio);
-      ctx.beginPath();
-      ctx.moveTo(-ew/2,0);ctx.lineTo(0,-eh*.5);ctx.lineTo(ew/2,0);
-      ctx.fillStyle='#E8D5A8';ctx.fill();
-      ctx.strokeStyle='rgba(201,168,76,.4)';ctx.lineWidth=2*scale;ctx.stroke();
-      ctx.restore();
-    }
-    // Gold seal
-    if(openRatio<.3){
-      ctx.beginPath();ctx.arc(cx,cy,18*scale,0,Math.PI*2);
-      const sg=ctx.createRadialGradient(cx,cy,0,cx,cy,18*scale);
-      sg.addColorStop(0,'#E8C060');sg.addColorStop(1,'#8B6914');
-      ctx.fillStyle=sg;ctx.fill();
-      ctx.fillStyle='rgba(255,255,255,.7)';ctx.font=`${14*scale}px serif`;
-      ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.fillText('💍',cx,cy);
+  function drawParticles(){
+    for(let i=parts.length-1;i>=0;i--){
+      const p=parts[i];
+      p.x+=p.vx;p.y+=p.vy;p.vy+=.25;p.life-=p.d;
+      if(p.life<=0){parts.splice(i,1);continue;}
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r*p.life,0,Math.PI*2);
+      ctx.fillStyle=`rgba(232,196,80,${p.life*.8})`;ctx.fill();
     }
   }
 
-  function drawCard(cx,cy,scale,alpha,progress){
-    ctx.save();ctx.globalAlpha=alpha;
-    const cw=380*scale,ch=540*scale;
+  // ── PHASE 1: Closed wedding card (0-3.5s) ──
+  function drawClosedCard(t){
+    const a=alpha(t,0,.6);
+    const floatY=Math.sin(t*1.2)*5;
+    const sc=easeOut(clamp(t/.8,0,1));
+    ctx.save();
+    ctx.globalAlpha=a;
+    ctx.translate(CX, CY*.9+floatY);
+    ctx.scale(sc,sc);
+    ctx.translate(-CX,-(CY*.9));
+
+    const cw=280,ch=380,cx=CX,cy=CY*.9;
     const x=cx-cw/2,y=cy-ch/2;
-    const bg=ctx.createLinearGradient(x,y,x+cw,y+ch);
-    bg.addColorStop(0,'#FFFDF5');bg.addColorStop(.5,'#F8EFDA');bg.addColorStop(1,'#F0E0C0');
-    ctx.fillStyle=bg;
-    ctx.shadowColor='rgba(201,168,76,.3)';ctx.shadowBlur=40*scale;
-    ctx.beginPath();ctx.roundRect(x,y,cw,ch,4);ctx.fill();
-    ctx.shadowBlur=0;
-    ctx.strokeStyle='rgba(201,168,76,.5)';ctx.lineWidth=1.5;ctx.stroke();
 
-    // Corners
-    const cs=28*scale;const pad=12*scale;
-    [[x+pad,y+pad,1,1],[x+cw-pad,y+pad,-1,1],[x+pad,y+ch-pad,1,-1],[x+cw-pad,y+ch-pad,-1,-1]].forEach(([cx2,cy2,sx,sy])=>{
-      ctx.beginPath();ctx.strokeStyle='rgba(201,168,76,.7)';ctx.lineWidth=1.5;
-      ctx.moveTo(cx2,cy2+sy*cs);ctx.lineTo(cx2,cy2);ctx.lineTo(cx2+sx*cs,cy2);ctx.stroke();
+    // Card shadow
+    ctx.shadowColor='rgba(201,168,76,.25)';ctx.shadowBlur=30;
+    // Card body
+    const bg=ctx.createLinearGradient(x,y,x+cw,y+ch);
+    bg.addColorStop(0,'#FFFDF5');bg.addColorStop(.5,'#F8EFDA');bg.addColorStop(1,'#EDD9A3');
+    ctx.fillStyle=bg;rr(x,y,cw,ch,4);ctx.fill();
+    ctx.shadowBlur=0;
+    // Gold border
+    ctx.strokeStyle='rgba(201,168,76,.65)';ctx.lineWidth=1.5;
+    rr(x,y,cw,ch,4);ctx.stroke();
+    // Inner border
+    ctx.strokeStyle='rgba(201,168,76,.3)';ctx.lineWidth=.8;
+    rr(x+8,y+8,cw-16,ch-16,3);ctx.stroke();
+
+    // Corner ornaments
+    const cs=22,pad=10;
+    [[x+pad,y+pad,1,1],[x+cw-pad,y+pad,-1,1],[x+pad,y+ch-pad,1,-1],[x+cw-pad,y+ch-pad,-1,-1]].forEach(([x2,y2,sx,sy])=>{
+      ctx.strokeStyle='rgba(201,168,76,.8)';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(x2,y2+sy*cs);ctx.lineTo(x2,y2);ctx.lineTo(x2+sx*cs,y2);ctx.stroke();
     });
 
-    const p=progress;
     // Bismillah
-    if(p>.05){
-      const a=Math.min(1,(p-.05)/.15);
-      ctx.globalAlpha=alpha*a;
-      ctx.fillStyle='#7A5C14';ctx.font=`${16*scale}px 'Amiri','Tajawal',serif`;
-      ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.fillText('بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',cx,y+55*scale);
+    ctx.globalAlpha=a*.9;ctx.fillStyle='#7A5C14';
+    ctx.font=`13px 'Tajawal',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',cx,y+45);
+
+    // Gold divider
+    const dg=ctx.createLinearGradient(cx-80,0,cx+80,0);
+    dg.addColorStop(0,'transparent');dg.addColorStop(.5,'rgba(201,168,76,.6)');dg.addColorStop(1,'transparent');
+    ctx.fillStyle=dg;ctx.fillRect(cx-80,y+65,160,1);
+
+    // Ring
+    ctx.font='36px serif';ctx.globalAlpha=a;
+    ctx.fillText('💍',cx,cy*.93);
+
+    // "دعوة زفاف"
+    ctx.globalAlpha=a;
+    const tg=ctx.createLinearGradient(cx-60,0,cx+60,0);
+    tg.addColorStop(0,'#C9A84C');tg.addColorStop(.5,'#F0D880');tg.addColorStop(1,'#C9A84C');
+    ctx.fillStyle=tg;ctx.font=`bold 22px 'Tajawal',sans-serif`;
+    ctx.fillText('دعوة زفاف',cx,y+ch*.6);
+
+    // Pulsing "اضغط لفتح"  hint (only first 2 seconds)
+    if(t<2.5){
+      ctx.globalAlpha=a*(.5+.5*Math.sin(t*3));
+      ctx.fillStyle='#9A7820';ctx.font=`10px 'Tajawal',sans-serif`;
+      ctx.fillText('✦  دعوة خاصة بكم  ✦',cx,y+ch*.82);
     }
-    // Divider
-    if(p>.15){
-      const a=Math.min(1,(p-.15)/.1);const w2=120*scale*a;
-      ctx.globalAlpha=alpha*a;
-      const dg=ctx.createLinearGradient(cx-w2,0,cx+w2,0);
-      dg.addColorStop(0,'transparent');dg.addColorStop(.5,'rgba(201,168,76,.7)');dg.addColorStop(1,'transparent');
-      ctx.fillStyle=dg;ctx.fillRect(cx-w2,y+80*scale,w2*2,1);
-    }
-    // Ring emoji
-    if(p>.2){
-      const a=Math.min(1,(p-.2)/.1)*alpha;
-      ctx.globalAlpha=a;
-      ctx.font=`${38*scale}px serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.fillText('💍',cx,y+140*scale);
-    }
-    // Names
-    if(p>.3){
-      const a=easeOut(Math.min(1,(p-.3)/.2));
-      ctx.globalAlpha=alpha*a;
-      const ng=ctx.createLinearGradient(cx-80,0,cx+80,0);
-      ng.addColorStop(0,'#C9A84C');ng.addColorStop(.5,'#F0D880');ng.addColorStop(1,'#C9A84C');
-      ctx.fillStyle=ng;
-      ctx.font=`bold ${28*scale}px 'Tajawal',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.fillText(n1,cx,y+220*scale);
-    }
-    if(p>.45){
-      const a=easeOut(Math.min(1,(p-.45)/.15));
-      ctx.globalAlpha=alpha*a;
-      ctx.fillStyle='rgba(90,60,10,.6)';ctx.font=`${18*scale}px 'Tajawal',serif`;
-      ctx.fillText('— و —',cx,y+265*scale);
-    }
-    if(p>.55){
-      const a=easeOut(Math.min(1,(p-.55)/.2));
-      ctx.globalAlpha=alpha*a;
-      const ng=ctx.createLinearGradient(cx-80,0,cx+80,0);
-      ng.addColorStop(0,'#C9A84C');ng.addColorStop(.5,'#F0D880');ng.addColorStop(1,'#C9A84C');
-      ctx.fillStyle=ng;
-      ctx.font=`bold ${28*scale}px 'Tajawal',sans-serif`;
-      ctx.fillText(n2,cx,y+310*scale);
-    }
-    // Divider 2
-    if(p>.7){
-      const a=Math.min(1,(p-.7)/.1);const w2=100*scale*a;
-      ctx.globalAlpha=alpha*a;
-      const dg=ctx.createLinearGradient(cx-w2,0,cx+w2,0);
-      dg.addColorStop(0,'transparent');dg.addColorStop(.5,'rgba(201,168,76,.5)');dg.addColorStop(1,'transparent');
-      ctx.fillStyle=dg;ctx.fillRect(cx-w2,y+355*scale,w2*2,1);
-    }
-    // Date
-    if(p>.75&&dateVal){
-      const a=easeOut(Math.min(1,(p-.75)/.15));
-      ctx.globalAlpha=alpha*a;
-      ctx.fillStyle='#5A3C0A';ctx.font=`${15*scale}px 'Tajawal',sans-serif`;
-      ctx.fillText('📅 '+dateVal,cx,y+390*scale);
-    }
-    // Venue
-    if(p>.85&&venue){
-      const a=easeOut(Math.min(1,(p-.85)/.1));
-      ctx.globalAlpha=alpha*a;
-      ctx.fillStyle='#5A3C0A';ctx.font=`${14*scale}px 'Tajawal',sans-serif`;
-      ctx.fillText('📍 '+venue,cx,y+430*scale);
-    }
+
     ctx.restore();
   }
 
-  function renderFrame(f){
-    const t=f/FPS; // time in seconds
-    const T=t/DUR; // 0..1
-    // Apply global scale so all drawing coords stay in 720x1280 space
+  // ── PHASE 2: Card opens — reveal clip scrolls down (3-5s) ──
+  function drawOpeningCard(t){
+    // openT 0→1 over 2 seconds
+    const openT=easeOut(clamp((t-3)/2,0,1));
+    const cx=CX, cy=CY*.9;
+    const cw=280, ch=380;
+    const x=cx-cw/2, y=cy-ch/2;
+
+    // Draw closed card behind
+    ctx.save();ctx.globalAlpha=1-openT*.5;
+    drawClosedCard(3); // frozen at t=3
+    ctx.restore();
+
+    // Clip to revealed portion (top flap peels open → expand full card)
+    // Reveal = card grows from top
+    const revealH=ch*openT;
+
     ctx.save();
-    ctx.scale(W/720,H/1280);
-    drawBg(t);
+    ctx.beginPath();
+    ctx.rect(x-10, y-10, cw+20, revealH+10);
+    ctx.clip();
 
-    // Phases:
-    // 0-1s  : envelope appears & floats
-    // 1-3s  : envelope floats, top flap opens
-    // 3-4s  : envelope fades, card flies in
-    // 4-11s : card with content reveals
+    // Full invitation card inside
+    ctx.globalAlpha=openT;
+    const bg=ctx.createLinearGradient(x,y,x+cw,y+ch);
+    bg.addColorStop(0,'#FFFDF5');bg.addColorStop(.5,'#F8EFDA');bg.addColorStop(1,'#EDD9A3');
+    ctx.fillStyle=bg;rr(x,y,cw,ch,4);ctx.fill();
+    ctx.strokeStyle='rgba(201,168,76,.6)';ctx.lineWidth=1.5;rr(x,y,cw,ch,4);ctx.stroke();
+    rr(x+8,y+8,cw-16,ch-16,3);ctx.strokeStyle='rgba(201,168,76,.25)';ctx.lineWidth=.8;ctx.stroke();
 
-    const cx=W/2,cy=H/2;
+    // Contents with staggered reveal based on openT
+    const cs=22,pad=10;
+    [[x+pad,y+pad,1,1],[x+cw-pad,y+pad,-1,1],[x+pad,y+ch-pad,1,-1],[x+cw-pad,y+ch-pad,-1,-1]].forEach(([x2,y2,sx,sy])=>{
+      ctx.strokeStyle='rgba(201,168,76,.8)';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(x2,y2+sy*cs);ctx.lineTo(x2,y2);ctx.lineTo(x2+sx*cs,y2);ctx.stroke();
+    });
+    ctx.restore();
+  }
 
-    // Envelope phase (0-4s)
-    if(t<4){
-      const envT=Math.min(1,t/1);
-      const scale=lerp(.6,1,easeOut(Math.min(1,t/.8)));
-      const envAlpha=t<3?1:easeOut(Math.max(0,1-(t-3)/1));
-      const slideY=lerp(H*.2,0,easeOut(Math.min(1,t/.8)));
-      const openRatio=t<1.5?0:easeOut(Math.min(1,(t-1.5)/1.5));
-      ctx.save();ctx.translate(0,slideY);
-      drawEnvelope(cx,cy,1,openRatio);
-      ctx.restore();
+  // ── PHASE 3: Full invitation (5-14s) ──
+  function drawFullCard(t){
+    const p=clamp((t-5)/8,0,1); // progress 0→1
+    const cx=CX, cy=CY*.85;
+    const cw=300, ch=500;
+    const x=cx-cw/2, y=cy-ch/2;
 
-      // Particle burst when fully open
-      if(t>2.8&&t<3.1&&particles.length<30) spawnParticles(cx,cy-120);
+    // Card
+    ctx.save();
+    const bg=ctx.createLinearGradient(x,y,x+cw,y+ch);
+    bg.addColorStop(0,'#FFFDF5');bg.addColorStop(.5,'#F8EFDA');bg.addColorStop(1,'#EDD9A3');
+    ctx.shadowColor='rgba(201,168,76,.2)';ctx.shadowBlur=25;
+    ctx.fillStyle=bg;rr(x,y,cw,ch,4);ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.strokeStyle='rgba(201,168,76,.6)';ctx.lineWidth=1.5;rr(x,y,cw,ch,4);ctx.stroke();
+    ctx.strokeStyle='rgba(201,168,76,.25)';ctx.lineWidth=.8;rr(x+8,y+8,cw-16,ch-16,3);ctx.stroke();
+
+    const cs=22,pad=10;
+    [[x+pad,y+pad,1,1],[x+cw-pad,y+pad,-1,1],[x+pad,y+ch-pad,1,-1],[x+cw-pad,y+ch-pad,-1,-1]].forEach(([x2,y2,sx,sy])=>{
+      ctx.strokeStyle='rgba(201,168,76,.8)';ctx.lineWidth=1.5;
+      ctx.beginPath();ctx.moveTo(x2,y2+sy*cs);ctx.lineTo(x2,y2);ctx.lineTo(x2+sx*cs,y2);ctx.stroke();
+    });
+
+    // Content — staggered
+    const row=(txt,yOff,size,color,pThresh,dur=.12)=>{
+      const a=alpha(p,pThresh,dur);if(!a)return;
+      ctx.globalAlpha=a;ctx.fillStyle=color;
+      ctx.font=`${size}px 'Tajawal',sans-serif`;
+      ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText(txt,cx,y+yOff);
+    };
+    const goldGrad=(yOff)=>{
+      const g=ctx.createLinearGradient(cx-80,0,cx+80,0);
+      g.addColorStop(0,'#C9A84C');g.addColorStop(.5,'#F0D880');g.addColorStop(1,'#C9A84C');
+      return g;
+    };
+
+    row('بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',38,12,'#7A5C14',0,.1);
+
+    // Divider 1
+    if(p>.1){const a=alpha(p,.1,.08);ctx.globalAlpha=a;const dg=ctx.createLinearGradient(cx-90,0,cx+90,0);dg.addColorStop(0,'transparent');dg.addColorStop(.5,'rgba(201,168,76,.7)');dg.addColorStop(1,'transparent');ctx.fillStyle=dg;ctx.fillRect(cx-90,y+58,180,1);}
+
+    row('لتشرّف بدعوتكم الكريمة',76,11,'#5A3C0A',.12,.1);
+    // Ring
+    if(p>.2){ctx.globalAlpha=alpha(p,.2,.12);ctx.font='30px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('💍',cx,y+115);}
+
+    // Names with gold gradient
+    if(p>.3){
+      const a=alpha(p,.3,.15);ctx.globalAlpha=a;
+      ctx.fillStyle=goldGrad();ctx.font=`bold 24px 'Tajawal',sans-serif`;
+      ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(n1,cx,y+165);
+    }
+    if(p>.42){
+      ctx.globalAlpha=alpha(p,.42,.1);ctx.fillStyle='rgba(90,60,10,.55)';
+      ctx.font=`16px 'Tajawal',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillText('— و —',cx,y+200);
+    }
+    if(p>.52){
+      const a=alpha(p,.52,.15);ctx.globalAlpha=a;
+      ctx.fillStyle=goldGrad();ctx.font=`bold 24px 'Tajawal',sans-serif`;
+      ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(n2,cx,y+240);
     }
 
-    // Particles
-    for(let i=particles.length-1;i>=0;i--){
-      const p=particles[i];
-      p.x+=p.vx;p.y+=p.vy;p.vy+=.4;p.life-=p.decay;
-      if(p.life<=0){particles.splice(i,1);continue;}
-      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-      ctx.fillStyle=`hsla(${p.hue},80%,65%,${p.life})`;ctx.fill();
+    // Divider 2
+    if(p>.65){const a=alpha(p,.65,.08);ctx.globalAlpha=a;const dg=ctx.createLinearGradient(cx-70,0,cx+70,0);dg.addColorStop(0,'transparent');dg.addColorStop(.5,'rgba(201,168,76,.6)');dg.addColorStop(1,'transparent');ctx.fillStyle=dg;ctx.fillRect(cx-70,y+268,140,1);}
+
+    // Invitation text
+    if(msg&&p>.68){
+      const a=alpha(p,.68,.12);ctx.globalAlpha=a;ctx.fillStyle='#4A3008';
+      ctx.font=`10px 'Tajawal',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+      // Wrap long text
+      const words=msg.split(' ');let line='',lines=[];
+      words.forEach(w=>{const t=line+w+' ';if(ctx.measureText(t).width>cw-40&&line){lines.push(line.trim());line=w+' ';}else line=t;});
+      if(line.trim())lines.push(line.trim());
+      lines.slice(0,3).forEach((l,i)=>ctx.fillText(l,cx,y+295+i*15));
     }
 
-    // Card phase (3s onward)
-    if(t>=3){
-      const cardT=Math.min(1,(t-3)/8); // progress through card content 0..1
-      const cardAlpha=easeOut(Math.min(1,(t-3)/.6));
-      const cardScale=lerp(.85,1,easeOut(Math.min(1,(t-3)/.5)));
-      ctx.save();
-      ctx.translate(cx,cy);ctx.scale(cardScale,cardScale);ctx.translate(-cx,-cy);
-      drawCard(cx,cy,1,cardAlpha,cardT);
-      ctx.restore();
-    }
+    if(dateVal&&p>.75){row('📅  '+dateVal,350,11,'#3D2608',.75,.1);}
+    if(venue&&p>.83){row('📍  '+venue,375,10,'#3D2608',.83,.1);}
 
-    // Gold sparkles on final hold (9s+)
-    if(t>9){
-      const sp=Math.random();
-      if(sp>.7){
-        const sx=cx+((Math.random()-.5)*380);
-        const sy=cy+((Math.random()-.5)*540);
-        ctx.beginPath();ctx.arc(sx,sy,Math.random()*2+.5,0,Math.PI*2);
-        ctx.fillStyle=`rgba(232,200,96,${Math.random()*.6+.2})`;ctx.fill();
+    // Divider 3
+    if(p>.88){const a=alpha(p,.88,.08);ctx.globalAlpha=a;const dg=ctx.createLinearGradient(cx-50,0,cx+50,0);dg.addColorStop(0,'transparent');dg.addColorStop(.5,'rgba(201,168,76,.5)');dg.addColorStop(1,'transparent');ctx.fillStyle=dg;ctx.fillRect(cx-50,y+400,100,1);}
+
+    if(footer&&p>.9){row(footer,430,10,'#9A7820',.9,.08);}
+
+    // Gold sparkles after fully revealed
+    if(p>.95){
+      for(let i=0;i<2;i++){
+        const sx=x+Math.random()*cw,sy=y+Math.random()*ch;
+        ctx.beginPath();ctx.arc(sx,sy,Math.random()*1.5+.3,0,Math.PI*2);
+        ctx.fillStyle=`rgba(240,200,80,${Math.random()*.5})`;ctx.fill();
       }
     }
 
-    // Final fade (11s+)
-    if(t>11){
-      const fa=Math.min(1,(t-11)/.8);
-      ctx.fillStyle=`rgba(8,6,4,${fa})`;ctx.fillRect(0,0,720,1280);
-    }
-
-    ctx.restore(); // end global scale
+    ctx.restore();
   }
 
-  await new Promise(resolve=>{
-    function nextFrame(){
-      if(frame>=totalFrames){resolve();return;}
-      renderFrame(frame);
-      frame++;
-      setTimeout(nextFrame,0);
+  let burstDone=false;
+  function renderFrame(f){
+    const t=f/FPS;
+    drawBg(t);
+    drawParticles();
+
+    // Fade in
+    if(t<.4){ctx.fillStyle=`rgba(7,5,3,${1-t/.4})`;ctx.fillRect(0,0,VW,VH);}
+
+    if(t<3.2) drawClosedCard(t);
+    else if(t<5){
+      drawOpeningCard(t);
+      if(!burstDone&&t>4){burst(CX,CY*.9,30);burstDone=true;}
     }
-    nextFrame();
+    else drawFullCard(t);
+
+    // Final fade
+    if(t>13.5){const fa=clamp((t-13.5)/1,0,1);ctx.fillStyle=`rgba(7,5,3,${fa})`;ctx.fillRect(0,0,VW,VH);}
+  }
+
+  const totalFrames=FPS*DUR;
+  let frame=0;
+  await new Promise(resolve=>{
+    function next(){
+      if(frame>=totalFrames){resolve();return;}
+      renderFrame(frame++);
+      setTimeout(next,0);
+    }
+    next();
   });
 
   rec.stop();
   await new Promise(r=>rec.onstop=r);
-
   hideLoad();
-  const ext=mime.includes('mp4')?'mp4':'webm';
+
   const blob=new Blob(chunks,{type:mime});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
-  a.download=`دعوة-${n1}-و-${n2}.${ext}`;
+  a.download=`دعوة-${n1}-و-${n2}.webm`;
   a.href=url;a.click();
-  setTimeout(()=>URL.revokeObjectURL(url),5000);
+  setTimeout(()=>URL.revokeObjectURL(url),8000);
 }
 
 async function expPNG(){

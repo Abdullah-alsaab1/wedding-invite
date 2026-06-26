@@ -2619,7 +2619,7 @@ async function expVideo(){
 
   // ── Setup: draw in 540×960 logical space, output 1080×1920 ──
   const VW=540,VH=960,SC=2; // logical × SC = output pixels
-  const W=VW*SC,H=VH*SC,FPS=30,DUR=22;
+  const W=VW*SC,H=VH*SC,FPS=30,DUR=30;
 
   // Draw canvas (logical size, scaled by SC for sharpness)
   const cvs=document.createElement('canvas');
@@ -2638,10 +2638,54 @@ async function expVideo(){
   const msg=gi('msg')||'', footer=gi('footer')||'';
 
   // Recording
-  const stream=cvs.captureStream(FPS);
-  const mime=MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
-    ?'video/webm;codecs=vp9':'video/webm';
-  const rec=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:6000000});
+  // ── Ambient Music (Web Audio API) ──
+  const audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  const audioDest=audioCtx.createMediaStreamDestination();
+  const master=audioCtx.createGain();master.gain.value=0.18;master.connect(audioDest);
+
+  // Reverb (convolver simulation via delay)
+  const delay=audioCtx.createDelay(.6);
+  const delayGain=audioCtx.createGain();delayGain.gain.value=.35;
+  delay.connect(delayGain);delayGain.connect(delay);delayGain.connect(master);
+
+  // Romantic pentatonic melody: C D E G A (repeated)
+  const scale=[261.63,293.66,329.63,392,440,523.25,587.33,659.25,783.99,880];
+  const melody=[4,4,5,7,7,5,4,2,2,4,5,5,4,2,0,0,2,4,4,2,2]; // indices into scale
+  const beatLen=DUR/melody.length;
+
+  melody.forEach((idx,i)=>{
+    const freq=scale[idx];
+    const start=audioCtx.currentTime+i*beatLen+.5;
+    const osc=audioCtx.createOscillator();
+    const env=audioCtx.createGain();
+    osc.type='sine';osc.frequency.value=freq;
+    osc.connect(env);env.connect(master);env.connect(delay);
+    env.gain.setValueAtTime(0,start);
+    env.gain.linearRampToValueAtTime(.4,start+.3);
+    env.gain.exponentialRampToValueAtTime(.001,start+beatLen*1.8);
+    osc.start(start);osc.stop(start+beatLen*2);
+
+    // Add soft harmony (fifth below)
+    const osc2=audioCtx.createOscillator();
+    const env2=audioCtx.createGain();
+    osc2.type='sine';osc2.frequency.value=freq*.75;
+    osc2.connect(env2);env2.connect(master);
+    env2.gain.setValueAtTime(0,start);
+    env2.gain.linearRampToValueAtTime(.15,start+.4);
+    env2.gain.exponentialRampToValueAtTime(.001,start+beatLen*1.6);
+    osc2.start(start);osc2.stop(start+beatLen*2);
+  });
+
+  // Combine video + audio into one stream
+  const videoStream=cvs.captureStream(FPS);
+  const combinedStream=new MediaStream([
+    ...videoStream.getVideoTracks(),
+    ...audioDest.stream.getAudioTracks()
+  ]);
+
+  const mime=MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')
+    ?'video/webm;codecs=vp9,opus':'video/webm';
+  const rec=new MediaRecorder(combinedStream,{mimeType:mime,videoBitsPerSecond:6000000});
   const chunks=[];
   rec.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data);};
 
@@ -2760,7 +2804,7 @@ async function expVideo(){
 
   // ── PHASE 2: Card opens — reveal clip scrolls down (3-5s) ──
   function drawOpeningCard(t){
-    const openT=easeOut(clamp((t-5)/3.5,0,1));
+    const openT=easeOut(clamp((t-7)/4,0,1));
     const cx=CX, cy=CY*.9;
     const cw=490, ch=680;
     const x=cx-cw/2, y=cy-ch/2;
@@ -2798,7 +2842,7 @@ async function expVideo(){
 
   // ── PHASE 3: Full invitation (5-14s) ──
   function drawFullCard(t){
-    const p=clamp((t-9)/11,0,1);
+    const p=clamp((t-12)/16,0,1);
     const cx=CX, cy=CY*.88;
     const cw=490, ch=780;
     const x=cx-cw/2, y=cy-ch/2;
@@ -2894,15 +2938,15 @@ async function expVideo(){
     // Fade in
     if(t<.4){ctx.fillStyle=`rgba(7,5,3,${1-t/.4})`;ctx.fillRect(0,0,VW,VH);}
 
-    if(t<5.2) drawClosedCard(t);
-    else if(t<9){
+    if(t<7.2) drawClosedCard(t);
+    else if(t<12){
       drawOpeningCard(t);
-      if(!burstDone&&t>7.5){burst(CX,CY*.9,30);burstDone=true;}
+      if(!burstDone&&t>10){burst(CX,CY*.9,30);burstDone=true;}
     }
     else drawFullCard(t);
 
     // Final fade
-    if(t>20.5){const fa=clamp((t-20.5)/1.2,0,1);ctx.fillStyle=`rgba(7,5,3,${fa})`;ctx.fillRect(0,0,VW,VH);}
+    if(t>28){const fa=clamp((t-28)/2,0,1);ctx.fillStyle=`rgba(7,5,3,${fa})`;ctx.fillRect(0,0,VW,VH);}
   }
 
   const totalFrames=FPS*DUR;

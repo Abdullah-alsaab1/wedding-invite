@@ -2220,21 +2220,22 @@ function initFreeUI(){
     return;
   }
 
-  const status=getFreeStatus();
+  const left = freeRemaining();
 
-  if(status==='free'){
+  if(left===MAX_FREE){
+    // لم يحمّل بعد — أول مرة
     if(banner)banner.classList.add('on');
-    if(bannerText)bannerText.textContent='🎁 أول تحميل PDF لك مجاني تماماً — انقر الآن!';
-    if(mainBtn){mainBtn.textContent='🎁 تحميل PDF مجاني — ببلاش!';mainBtn.style.background='linear-gradient(90deg,#1a6b1a,#2ea82e)';mainBtn.style.animation='free-pulse 1.8s ease-in-out infinite';}
-    if(smallBtn){smallBtn.textContent='📄 PDF 🎁';smallBtn.title='مجاني لأول مرة';}
-  } else if(status==='correction'){
-    const usedAt=parseInt(localStorage.getItem('wi_free_used_at')||'0');
-    const minLeft=Math.ceil((CORRECTION_WINDOW_MS-(Date.now()-usedAt))/60000);
+    if(bannerText)bannerText.textContent='🎁 لديك 3 تحميلات PDF مجانية — استخدمها الآن!';
+    if(mainBtn){mainBtn.textContent='🎁 تحميل PDF مجاني (3 مرات)';mainBtn.style.background='linear-gradient(90deg,#1a6b1a,#2ea82e)';mainBtn.style.animation='free-pulse 1.8s ease-in-out infinite';}
+    if(smallBtn){smallBtn.textContent='📄 PDF 🎁';smallBtn.title='3 تحميلات مجانية';}
+  } else if(left>0){
+    // استخدم بعضها — باقي له محاولات
     if(banner)banner.classList.add('on');
-    if(bannerText)bannerText.textContent=`✏️ نافذة التصحيح مفتوحة — باقي ${minLeft} دقيقة لإعادة التحميل مجاناً`;
-    if(mainBtn){mainBtn.textContent=`✏️ تصحيح مجاني (${minLeft} دقيقة)`;mainBtn.style.background='linear-gradient(90deg,#4a3800,#8a6a00)';mainBtn.style.animation='';}
-    if(smallBtn){smallBtn.textContent='📄 تصحيح 🆓';smallBtn.title='نافذة التصحيح مفتوحة';}
+    if(bannerText)bannerText.textContent=`✏️ باقي لك ${left} ${left===1?'محاولة':'محاولات'} تصحيح مجانية`;
+    if(mainBtn){mainBtn.textContent=`✏️ تصحيح مجاني — باقي ${left} ${left===1?'محاولة':'محاولات'}`;mainBtn.style.background='linear-gradient(90deg,#4a3800,#8a6a00)';mainBtn.style.animation='';}
+    if(smallBtn){smallBtn.textContent=`📄 تصحيح (${left})`;smallBtn.title=`باقي ${left} محاولات مجانية`;}
   } else {
+    // انتهت المحاولات المجانية
     if(banner)banner.classList.remove('on');
     if(mainBtn){mainBtn.textContent='⬇ تحميل PDF الفاخر 💎 $2';mainBtn.style.background='';mainBtn.style.animation='';}
     if(smallBtn){smallBtn.textContent='📄 PDF 💎';smallBtn.title='PDF بدون علامة مائية';}
@@ -2329,45 +2330,36 @@ async function expPNG(){
     a.click();
   }finally{hideLoad()}
 }
-const CORRECTION_WINDOW_MS = 60 * 60 * 1000; // ساعة واحدة للتصحيح
+const MAX_FREE = 3; // أقصى عدد تحميلات مجانية
 
-function getFreeStatus(){
-  const used = localStorage.getItem('wi_free_used')==='1';
-  if(!used) return 'free';           // أول مرة — مجاني
-  const usedAt = parseInt(localStorage.getItem('wi_free_used_at')||'0');
-  if(usedAt && Date.now()-usedAt < CORRECTION_WINDOW_MS) return 'correction'; // ضمن نافذة التصحيح
-  return 'paid';                     // انتهت الفرصة
+function getFreeCount(){
+  return parseInt(localStorage.getItem('wi_free_count')||'0');
 }
-
-function setPaidButtonUI(){
-  const mainBtn=document.getElementById('pdf-main-btn');
-  const smallBtn=document.getElementById('pdf-small-btn');
-  const banner=document.getElementById('free-banner');
-  if(mainBtn){mainBtn.textContent='⬇ تحميل PDF الفاخر 💎 $2';mainBtn.style.background='';mainBtn.style.animation='';}
-  if(smallBtn){smallBtn.textContent='📄 PDF 💎';smallBtn.title='PDF بدون علامة مائية';}
-  if(banner)banner.classList.remove('on');
+function freeRemaining(){
+  return Math.max(0, MAX_FREE - getFreeCount());
 }
 
 async function expPDF(){
-  const status=getFreeStatus();
-  if(status==='paid'&&!isUnlocked()){openPayModal();return;}
+  const remaining = freeRemaining();
+  if(remaining<=0 && !isUnlocked()){openPayModal();return;}
 
-  if(status==='correction'){
-    const usedAt=parseInt(localStorage.getItem('wi_free_used_at')||'0');
-    const minLeft=Math.ceil((CORRECTION_WINDOW_MS-(Date.now()-usedAt))/60000);
-    const ok=confirm(`✏️ نافذة التصحيح المجاني\n\nيمكنك إعادة التحميل مجاناً لتصحيح الأخطاء.\nباقي لك ${minLeft} دقيقة من وقت التصحيح.\n\nهل تريد المتابعة؟`);
-    if(!ok)return;
-  }
-
-  if(status==='free'){
-    localStorage.setItem('wi_free_used','1');
-    localStorage.setItem('wi_free_used_at', Date.now().toString());
+  if(remaining>0){
+    const newCount = getFreeCount()+1;
+    localStorage.setItem('wi_free_count', newCount);
+    const left = MAX_FREE - newCount;
     const mainBtn=document.getElementById('pdf-main-btn');
     const smallBtn=document.getElementById('pdf-small-btn');
     const banner=document.getElementById('free-banner');
-    if(mainBtn){mainBtn.textContent='✏️ تصحيح مجاني (باقي 60 دقيقة)';mainBtn.style.background='linear-gradient(90deg,#4a3800,#8a6a00)';mainBtn.style.animation='';}
-    if(smallBtn){smallBtn.textContent='📄 تصحيح 🆓';smallBtn.title='نافذة التصحيح مفتوحة';}
-    if(banner){document.getElementById('free-banner-text').textContent='✏️ تم التحميل! لديك ساعة لتصحيح أي خطأ مجاناً';banner.classList.add('on');}
+    const bannerText=document.getElementById('free-banner-text');
+    if(left>0){
+      if(mainBtn){mainBtn.textContent=`✏️ تصحيح مجاني — باقي ${left} ${left===1?'محاولة':'محاولات'}`;mainBtn.style.background='linear-gradient(90deg,#4a3800,#8a6a00)';mainBtn.style.animation='';}
+      if(smallBtn){smallBtn.textContent=`📄 تصحيح (${left})`;smallBtn.title=`باقي ${left} محاولات مجانية`;}
+      if(banner&&bannerText){bannerText.textContent=`✏️ تم التحميل! باقي لك ${left} ${left===1?'محاولة':'محاولات'} تصحيح مجانية`;banner.classList.add('on');}
+    } else {
+      if(mainBtn){mainBtn.textContent='⬇ تحميل PDF الفاخر 💎 $2';mainBtn.style.background='';mainBtn.style.animation='';}
+      if(smallBtn){smallBtn.textContent='📄 PDF 💎';smallBtn.title='PDF بدون علامة مائية';}
+      if(banner)banner.classList.remove('on');
+    }
   }
   showLoad('جاري إنشاء ملف PDF...');
   try{

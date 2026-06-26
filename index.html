@@ -2590,24 +2590,73 @@ if(document.readyState==='loading'){
 function onPayPalClick(){
   const overlay=document.createElement('div');
   overlay.id='pp-overlay';
-  overlay.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(6,4,2,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;animation:fadeIn .3s';
+  overlay.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(6,4,2,.97);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;animation:fadeIn .3s';
   overlay.innerHTML=`
-    <div style="font-size:3rem;margin-bottom:1rem">💳</div>
-    <div style="font-size:1.2rem;font-weight:700;color:#C9A84C;margin-bottom:.8rem">تم فتح PayPal في تبويب جديد</div>
-    <div style="font-size:.85rem;color:#E8D5A3;opacity:.85;margin-bottom:1.5rem;line-height:2">
-      بعد إتمام الدفع أرسل لنا رقم المعاملة<br>
-      <strong style="color:#C9A84C">(Transaction ID)</strong> على الإيميل:<br>
-      <strong style="color:#C9A84C;font-size:.9rem">kingdeed130@gmail.com</strong><br>
-      <span style="opacity:.6;font-size:.75rem">وسيصلك كود الفتح خلال دقائق ⚡</span>
+    <div style="font-size:2.5rem;margin-bottom:.8rem">💳</div>
+    <div style="font-size:1.1rem;font-weight:700;color:#C9A84C;margin-bottom:.4rem">تم فتح PayPal في تبويب جديد</div>
+    <div style="font-size:.8rem;color:#E8D5A3;opacity:.7;margin-bottom:1.4rem;line-height:1.8">
+      بعد إتمام الدفع، انسخ رقم الطلب<br>
+      <strong style="color:#C9A84C">(Order ID)</strong> من إيصال PayPal والصقه هنا:
     </div>
-    <a href="mailto:kingdeed130@gmail.com?subject=PayPal%20Payment%20Confirmation&body=Transaction%20ID%3A%20" style="background:linear-gradient(90deg,#B8902A,#E8C060);border:none;border-radius:10px;color:#1a0a02;font-weight:700;padding:.9rem 2rem;cursor:pointer;font-family:'Tajawal',sans-serif;font-size:.9rem;width:100%;max-width:280px;display:block;text-decoration:none;margin-bottom:.5rem">
-      📧 أرسل التأكيد على الإيميل
-    </a>
-    <button onclick="document.getElementById('pp-overlay').remove()" style="margin-top:.5rem;background:none;border:none;color:rgba(201,168,76,.4);font-size:.75rem;cursor:pointer;font-family:'Tajawal',sans-serif">
+    <input id="pp-order-input" placeholder="مثال: 5TY05013RG002845M" maxlength="50"
+      style="width:100%;max-width:300px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.4);border-radius:8px;color:#E8D5A3;padding:.7rem 1rem;font-size:.85rem;text-align:center;margin-bottom:.8rem;outline:none;font-family:monospace;letter-spacing:.05em">
+    <div id="pp-verify-msg" style="font-size:.75rem;min-height:1.2rem;margin-bottom:.6rem;color:#e74c3c;display:none"></div>
+    <button onclick="verifyPayPalOrder()" style="background:linear-gradient(90deg,#B8902A,#E8C060);border:none;border-radius:10px;color:#1a0a02;font-weight:700;padding:.85rem 2rem;cursor:pointer;font-family:'Tajawal',sans-serif;font-size:.95rem;width:100%;max-width:300px">
+      ✅ تحقق وافتح الموقع
+    </button>
+    <button onclick="document.getElementById('pp-overlay').remove()" style="margin-top:.8rem;background:none;border:none;color:rgba(201,168,76,.35);font-size:.72rem;cursor:pointer;font-family:'Tajawal',sans-serif">
       إغلاق
     </button>
   `;
   document.body.appendChild(overlay);
+  setTimeout(()=>document.getElementById('pp-order-input')?.focus(),300);
+}
+
+async function verifyPayPalOrder(){
+  const input=document.getElementById('pp-order-input');
+  const msg=document.getElementById('pp-verify-msg');
+  const btn=document.querySelector('#pp-overlay button');
+  const orderId=(input?.value||'').trim().toUpperCase();
+
+  if(!orderId){msg.textContent='أدخل رقم الطلب أولاً';msg.style.display='block';return;}
+
+  btn.disabled=true;btn.textContent='⏳ جاري التحقق...';
+  msg.style.display='none';
+
+  try{
+    const r=await fetch('/api/paypal-verify',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({orderId})
+    });
+    const d=await r.json();
+
+    if(d.ok && d.sale && d.token){
+      // Valid payment — unlock
+      localStorage.setItem('wi_sale', d.sale);
+      localStorage.setItem('wi_token', d.token);
+      localStorage.setItem('wi_expiry', Date.now()+365*24*3600*1000);
+      document.getElementById('pp-overlay').remove();
+      closePayModal();
+      showToast('🎉 تم التحقق من دفعك! الموقع مفتوح الآن');
+    } else {
+      const errs={
+        order_not_found:'رقم الطلب غير موجود — تأكد من نسخه بشكل صحيح',
+        status_PENDING:'الدفع لم يكتمل بعد — انتظر قليلاً وحاول مجدداً',
+        amount_or_payee_mismatch:'مبلغ الدفع غير مطابق',
+        too_many_requests:'حاولت كثيراً — انتظر دقيقة',
+        verification_failed:'خطأ في التحقق — تواصل معنا على kingdeed130@gmail.com'
+      };
+      msg.textContent=errs[d.error]||'تعذر التحقق — تواصل معنا على kingdeed130@gmail.com';
+      msg.style.color='#e74c3c';
+      msg.style.display='block';
+      btn.disabled=false;btn.textContent='✅ تحقق وافتح الموقع';
+    }
+  }catch(e){
+    msg.textContent='خطأ في الاتصال — حاول مجدداً';
+    msg.style.display='block';
+    btn.disabled=false;btn.textContent='✅ تحقق وافتح الموقع';
+  }
 }
 function openPayModal(){document.getElementById('pay-modal').classList.add('on')}
 function closePayModal(){document.getElementById('pay-modal').classList.remove('on')}

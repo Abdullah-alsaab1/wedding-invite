@@ -1617,6 +1617,7 @@ if(new URLSearchParams(location.search).get('_reset')==='1'){
     <button class="skill-chip" onclick="askSkill('كم عدد القوالب؟')">🎨 القوالب</button>
     <button class="skill-chip" onclick="askSkill('كيف أدفع؟')">💳 الدفع</button>
     <button class="skill-chip" onclick="askSkill('واجهت مشكلة')">⚠️ مشكلة</button>
+    <button class="skill-chip" onclick="openRestoreFromChat()" style="background:rgba(201,168,76,.18);border-color:rgba(201,168,76,.6)">🔓 عندي رابط دفع</button>
   </div>
   <div id="chat-input-row">
     <button id="chat-send" onclick="sendChat()">➤</button>
@@ -3324,6 +3325,17 @@ function showTyping(){
   box.scrollTop=box.scrollHeight;
 }
 function removeTyping(){const t=document.getElementById('chat-typing');if(t)t.remove();}
+
+function openRestoreFromChat(){
+  toggleChat();
+  addMsg('لا مشكلة! الصق رابط الدفع من PayPal وسأفتح الموقع لك فوراً 🔓','bot');
+  setTimeout(()=>{
+    onPayPalClick();
+    // Pre-fill instructions
+    const inp=document.getElementById('pp-order-input');
+    if(inp){inp.placeholder='الصق رابط PayPal أو رقم الطلب هنا...';}
+  },300);
+}
 
 function askSkill(question){
   document.getElementById('chat-input').value=question;

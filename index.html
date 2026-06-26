@@ -2595,9 +2595,12 @@ function onPayPalClick(){
   overlay.innerHTML=`
     <div style="font-size:2.5rem;margin-bottom:.8rem">💳</div>
     <div style="font-size:1.1rem;font-weight:700;color:#C9A84C;margin-bottom:.4rem">تم فتح PayPal في تبويب جديد</div>
-    <div style="font-size:.8rem;color:#E8D5A3;opacity:.7;margin-bottom:1.4rem;line-height:1.8">
-      بعد إتمام الدفع، انسخ رقم الطلب<br>
-      <strong style="color:#C9A84C">(Order ID)</strong> من إيصال PayPal والصقه هنا:
+    <div style="font-size:.8rem;color:#E8D5A3;opacity:.7;margin-bottom:1.4rem;line-height:1.9">
+      بعد الدفع، ارجع لهذه الصفحة والصق رقم الطلب هنا.<br>
+      <span style="color:#C9A84C;font-weight:700">وين تلاقيه؟</span><br>
+      📧 من إيميل التأكيد ← ابحث عن <strong style="color:#C9A84C">Transaction ID</strong><br>
+      🔗 أو من رابط PayPal — الأرقام في <strong style="color:#C9A84C">آخر الرابط</strong><br>
+      <span style="opacity:.6;font-size:.72rem">مثال: paypal.com/.../4PT966840L893343W</span>
     </div>
     <input id="pp-order-input" placeholder="مثال: 5TY05013RG002845M" maxlength="50"
       style="width:100%;max-width:300px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.4);border-radius:8px;color:#E8D5A3;padding:.7rem 1rem;font-size:.85rem;text-align:center;margin-bottom:.8rem;outline:none;font-family:monospace;letter-spacing:.05em">

@@ -727,6 +727,48 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.3);box-shadow:0 
   border:1px solid rgba(138,154,96,.2);
   box-shadow:inset 0 0 0 4px rgba(138,154,96,.05)}
 
+/* ── New Ornament Corner Sets ── */
+.geo-tl,.geo-tr,.geo-bl,.geo-br,
+.rose-tl,.rose-tr,.rose-bl,.rose-br,
+.sage-tl,.sage-tr,.sage-bl,.sage-br{display:none;position:absolute;pointer-events:none;z-index:0}
+
+.t18 .geo-tl,.t18 .geo-tr,.t18 .geo-bl,.t18 .geo-br,
+.t20 .geo-tl,.t20 .geo-tr,.t20 .geo-bl,.t20 .geo-br,
+.t22 .geo-tl,.t22 .geo-tr,.t22 .geo-bl,.t22 .geo-br{display:block;opacity:.72}
+
+.t19 .rose-tl,.t19 .rose-tr,.t19 .rose-bl,.t19 .rose-br,
+.t21 .rose-tl,.t21 .rose-tr,.t21 .rose-bl,.t21 .rose-br{display:block;opacity:.58}
+
+.t23 .sage-tl,.t23 .sage-tr,.t23 .sage-bl,.t23 .sage-br{display:block;opacity:.55}
+
+/* Geo positions */
+.geo-tl{top:-2px;left:-2px;width:150px;height:150px}
+.geo-tr{top:-2px;right:-2px;width:150px;height:150px;transform:scaleX(-1)}
+.geo-bl{bottom:-2px;left:-2px;width:130px;height:130px;transform:scaleY(-1)}
+.geo-br{bottom:-2px;right:-2px;width:130px;height:130px;transform:scale(-1,-1)}
+/* Rose positions */
+.rose-tl{top:-4px;left:-4px;width:155px;height:155px}
+.rose-tr{top:-4px;right:-4px;width:155px;height:155px;transform:scaleX(-1)}
+.rose-bl{bottom:-4px;left:-4px;width:130px;height:130px;transform:scaleY(-1)}
+.rose-br{bottom:-4px;right:-4px;width:130px;height:130px;transform:scale(-1,-1)}
+/* Sage positions */
+.sage-tl{top:-2px;left:-2px;width:155px;height:155px}
+.sage-tr{top:-2px;right:-2px;width:155px;height:155px;transform:scaleX(-1)}
+.sage-bl{bottom:-2px;left:-2px;width:130px;height:130px;transform:scaleY(-1)}
+.sage-br{bottom:-2px;right:-2px;width:130px;height:130px;transform:scale(-1,-1)}
+
+/* Geo colors */
+.t18 .gc-line{stroke:#D4904A}.t18 .gc-fill{fill:#D4904A}
+.t20 .gc-line{stroke:#C9A84C}.t20 .gc-fill{fill:#C9A84C}
+.t22 .gc-line{stroke:#D4906A}.t22 .gc-fill{fill:#D4906A}
+/* Rose colors */
+.t19 .pc-vine{stroke:#B8920A}.t19 .pc-petal{fill:#E8D080;opacity:.72}.t19 .pc-petal2{fill:#D4B848;opacity:.65}
+.t19 .pc-leaf{fill:#C8B050}.t19 .pc-center{fill:#A07820}.t19 .pc-center2{fill:#B88828}.t19 .pc-dot{fill:#C09830}
+.t21 .pc-vine{stroke:#C8907A}.t21 .pc-petal{fill:#F0C0B0;opacity:.72}.t21 .pc-petal2{fill:#E0A890;opacity:.65}
+.t21 .pc-leaf{fill:#B8A888}.t21 .pc-center{fill:#A06050}.t21 .pc-center2{fill:#B87060}.t21 .pc-dot{fill:#C08070}
+/* Sage colors */
+.t23 .sc-vine{stroke:#7A9060}.t23 .sc-leaf{fill:#8AAA70}.t23 .sc-berry{fill:#6A8858}
+
 /* ── Fancy Sections ── */
 @keyframes secFadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes heartBeat{0%,100%{transform:scale(1)}50%{transform:scale(1.25)}}
@@ -1575,6 +1617,188 @@ select.fancy-input option{background:#222;color:var(--cream)}
           <circle cx="0" cy="0" r="4" class="fl-center2"/>
         </g>
         <circle cx="50" cy="88" r="1.3" class="fl-dot"/>
+      </svg>
+
+      <!-- ── GEOMETRIC CORNERS (t18, t20, t22) ── -->
+      <svg class="geo-tl" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M6,6 L6,72 M6,6 L72,6" stroke-width="1.5" stroke-linecap="round" fill="none" class="gc-line"/>
+        <path d="M14,14 L14,60 M14,14 L60,14" stroke-width="0.6" fill="none" class="gc-line" opacity="0.5"/>
+        <g transform="translate(6,6)"><path d="M0,-7 L2,-2 L7,0 L2,2 L0,7 L-2,2 L-7,0 L-2,-2Z" class="gc-fill"/></g>
+        <path d="M24,6 L28,10 L24,14 L20,10Z" class="gc-fill" opacity="0.7"/>
+        <path d="M42,6 L45,9 L42,12 L39,9Z" class="gc-fill" opacity="0.42"/>
+        <path d="M6,24 L10,28 L6,32 L2,28Z" class="gc-fill" opacity="0.7"/>
+        <path d="M6,42 L9,45 L6,48 L3,45Z" class="gc-fill" opacity="0.42"/>
+        <path d="M34,6 Q46,16 48,32 Q50,46 40,52" stroke-width="0.75" fill="none" class="gc-line" opacity="0.35"/>
+        <path d="M6,34 Q16,46 32,48 Q46,50 52,40" stroke-width="0.75" fill="none" class="gc-line" opacity="0.35"/>
+        <circle cx="30" cy="30" r="2" class="gc-fill" opacity="0.2"/>
+        <circle cx="14" cy="38" r="1.1" class="gc-fill" opacity="0.38"/>
+        <circle cx="14" cy="50" r="0.8" class="gc-fill" opacity="0.25"/>
+        <circle cx="38" cy="14" r="1.1" class="gc-fill" opacity="0.38"/>
+        <circle cx="50" cy="14" r="0.8" class="gc-fill" opacity="0.25"/>
+      </svg>
+      <svg class="geo-tr" viewBox="0 0 150 150" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M6,6 L6,72 M6,6 L72,6" stroke-width="1.5" stroke-linecap="round" fill="none" class="gc-line"/>
+        <path d="M14,14 L14,60 M14,14 L60,14" stroke-width="0.6" fill="none" class="gc-line" opacity="0.5"/>
+        <g transform="translate(6,6)"><path d="M0,-7 L2,-2 L7,0 L2,2 L0,7 L-2,2 L-7,0 L-2,-2Z" class="gc-fill"/></g>
+        <path d="M24,6 L28,10 L24,14 L20,10Z" class="gc-fill" opacity="0.7"/>
+        <path d="M42,6 L45,9 L42,12 L39,9Z" class="gc-fill" opacity="0.42"/>
+        <path d="M6,24 L10,28 L6,32 L2,28Z" class="gc-fill" opacity="0.7"/>
+        <path d="M6,42 L9,45 L6,48 L3,45Z" class="gc-fill" opacity="0.42"/>
+        <path d="M34,6 Q46,16 48,32 Q50,46 40,52" stroke-width="0.75" fill="none" class="gc-line" opacity="0.35"/>
+        <path d="M6,34 Q16,46 32,48 Q46,50 52,40" stroke-width="0.75" fill="none" class="gc-line" opacity="0.35"/>
+        <circle cx="30" cy="30" r="2" class="gc-fill" opacity="0.2"/>
+        <circle cx="14" cy="38" r="1.1" class="gc-fill" opacity="0.38"/>
+        <circle cx="38" cy="14" r="1.1" class="gc-fill" opacity="0.38"/>
+      </svg>
+      <svg class="geo-bl" viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M6,6 L6,62 M6,6 L62,6" stroke-width="1.5" stroke-linecap="round" fill="none" class="gc-line"/>
+        <path d="M13,13 L13,52 M13,13 L52,13" stroke-width="0.6" fill="none" class="gc-line" opacity="0.5"/>
+        <g transform="translate(6,6)"><path d="M0,-6 L1.8,-1.8 L6,0 L1.8,1.8 L0,6 L-1.8,1.8 L-6,0 L-1.8,-1.8Z" class="gc-fill"/></g>
+        <path d="M22,6 L25,9 L22,12 L19,9Z" class="gc-fill" opacity="0.65"/>
+        <path d="M6,22 L9,25 L6,28 L3,25Z" class="gc-fill" opacity="0.65"/>
+        <circle cx="13" cy="34" r="1" class="gc-fill" opacity="0.35"/>
+        <circle cx="34" cy="13" r="1" class="gc-fill" opacity="0.35"/>
+      </svg>
+      <svg class="geo-br" viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M6,6 L6,62 M6,6 L62,6" stroke-width="1.5" stroke-linecap="round" fill="none" class="gc-line"/>
+        <path d="M13,13 L13,52 M13,13 L52,13" stroke-width="0.6" fill="none" class="gc-line" opacity="0.5"/>
+        <g transform="translate(6,6)"><path d="M0,-6 L1.8,-1.8 L6,0 L1.8,1.8 L0,6 L-1.8,1.8 L-6,0 L-1.8,-1.8Z" class="gc-fill"/></g>
+        <path d="M22,6 L25,9 L22,12 L19,9Z" class="gc-fill" opacity="0.65"/>
+        <path d="M6,22 L9,25 L6,28 L3,25Z" class="gc-fill" opacity="0.65"/>
+        <circle cx="13" cy="34" r="1" class="gc-fill" opacity="0.35"/>
+        <circle cx="34" cy="13" r="1" class="gc-fill" opacity="0.35"/>
+      </svg>
+
+      <!-- ── ROSE CORNERS (t19, t21) ── -->
+      <svg class="rose-tl" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M8,152 Q26,90 88,12" stroke-width="1.2" fill="none" class="pc-vine"/>
+        <path d="M8,152 Q50,110 118,58" stroke-width="0.65" fill="none" class="pc-vine" opacity="0.36"/>
+        <path d="M38,120 Q54,102 66,108 Q54,117 38,120Z" class="pc-leaf" opacity="0.72"/>
+        <path d="M38,120 Q52,108 66,108" stroke-width="0.5" fill="none" class="pc-vine" opacity="0.32"/>
+        <path d="M62,84 Q78,66 90,72 Q76,80 62,84Z" class="pc-leaf" opacity="0.66"/>
+        <path d="M62,84 Q76,70 90,72" stroke-width="0.5" fill="none" class="pc-vine" opacity="0.32"/>
+        <path d="M26,134 Q38,125 46,129 Q37,135 26,134Z" class="pc-leaf" opacity="0.52"/>
+        <g transform="translate(88,14)">
+          <ellipse cx="0" cy="-9" rx="4.5" ry="7" class="pc-petal" transform="rotate(0)"/>
+          <ellipse cx="0" cy="-9" rx="4.5" ry="7" class="pc-petal" transform="rotate(60)"/>
+          <ellipse cx="0" cy="-9" rx="4.5" ry="7" class="pc-petal" transform="rotate(120)"/>
+          <ellipse cx="0" cy="-9" rx="4.5" ry="7" class="pc-petal" transform="rotate(180)"/>
+          <ellipse cx="0" cy="-9" rx="4.5" ry="7" class="pc-petal" transform="rotate(240)"/>
+          <ellipse cx="0" cy="-9" rx="4.5" ry="7" class="pc-petal" transform="rotate(300)"/>
+          <circle cx="0" cy="0" r="5" class="pc-center"/>
+        </g>
+        <g transform="translate(54,56)">
+          <ellipse cx="0" cy="-5.5" rx="3" ry="5" class="pc-petal2" transform="rotate(0)"/>
+          <ellipse cx="0" cy="-5.5" rx="3" ry="5" class="pc-petal2" transform="rotate(72)"/>
+          <ellipse cx="0" cy="-5.5" rx="3" ry="5" class="pc-petal2" transform="rotate(144)"/>
+          <ellipse cx="0" cy="-5.5" rx="3" ry="5" class="pc-petal2" transform="rotate(216)"/>
+          <ellipse cx="0" cy="-5.5" rx="3" ry="5" class="pc-petal2" transform="rotate(288)"/>
+          <circle cx="0" cy="0" r="3.5" class="pc-center2"/>
+        </g>
+        <circle cx="22" cy="140" r="1.4" class="pc-dot"/>
+        <circle cx="78" cy="36" r="1.2" class="pc-dot"/>
+        <circle cx="118" cy="58" r="1" class="pc-dot" opacity="0.5"/>
+      </svg>
+      <svg class="rose-tr" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M8,152 Q26,90 88,12" stroke-width="1.2" fill="none" class="pc-vine"/>
+        <path d="M38,120 Q54,102 66,108 Q54,117 38,120Z" class="pc-leaf" opacity="0.72"/>
+        <path d="M62,84 Q78,66 90,72 Q76,80 62,84Z" class="pc-leaf" opacity="0.66"/>
+        <path d="M26,134 Q38,125 46,129 Q37,135 26,134Z" class="pc-leaf" opacity="0.52"/>
+        <g transform="translate(88,14)">
+          <ellipse cx="0" cy="-9" rx="4.5" ry="7" class="pc-petal" transform="rotate(0)"/>
+          <ellipse cx="0" cy="-9" rx="4.5" ry="7" class="pc-petal" transform="rotate(60)"/>
+          <ellipse cx="0" cy="-9" rx="4.5" ry="7" class="pc-petal" transform="rotate(120)"/>
+          <ellipse cx="0" cy="-9" rx="4.5" ry="7" class="pc-petal" transform="rotate(180)"/>
+          <ellipse cx="0" cy="-9" rx="4.5" ry="7" class="pc-petal" transform="rotate(240)"/>
+          <ellipse cx="0" cy="-9" rx="4.5" ry="7" class="pc-petal" transform="rotate(300)"/>
+          <circle cx="0" cy="0" r="5" class="pc-center"/>
+        </g>
+        <g transform="translate(54,56)">
+          <ellipse cx="0" cy="-5.5" rx="3" ry="5" class="pc-petal2" transform="rotate(0)"/>
+          <ellipse cx="0" cy="-5.5" rx="3" ry="5" class="pc-petal2" transform="rotate(72)"/>
+          <ellipse cx="0" cy="-5.5" rx="3" ry="5" class="pc-petal2" transform="rotate(144)"/>
+          <ellipse cx="0" cy="-5.5" rx="3" ry="5" class="pc-petal2" transform="rotate(216)"/>
+          <ellipse cx="0" cy="-5.5" rx="3" ry="5" class="pc-petal2" transform="rotate(288)"/>
+          <circle cx="0" cy="0" r="3.5" class="pc-center2"/>
+        </g>
+        <circle cx="78" cy="36" r="1.2" class="pc-dot"/>
+      </svg>
+      <svg class="rose-bl" viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M6,122 Q20,72 70,10" stroke-width="1.1" fill="none" class="pc-vine"/>
+        <path d="M30,98 Q44,82 54,87 Q43,95 30,98Z" class="pc-leaf" opacity="0.68"/>
+        <path d="M52,66 Q66,50 76,56 Q64,64 52,66Z" class="pc-leaf" opacity="0.62"/>
+        <g transform="translate(70,12)">
+          <ellipse cx="0" cy="-7" rx="3.5" ry="5.5" class="pc-petal" transform="rotate(0)"/>
+          <ellipse cx="0" cy="-7" rx="3.5" ry="5.5" class="pc-petal" transform="rotate(60)"/>
+          <ellipse cx="0" cy="-7" rx="3.5" ry="5.5" class="pc-petal" transform="rotate(120)"/>
+          <ellipse cx="0" cy="-7" rx="3.5" ry="5.5" class="pc-petal" transform="rotate(180)"/>
+          <ellipse cx="0" cy="-7" rx="3.5" ry="5.5" class="pc-petal" transform="rotate(240)"/>
+          <ellipse cx="0" cy="-7" rx="3.5" ry="5.5" class="pc-petal" transform="rotate(300)"/>
+          <circle cx="0" cy="0" r="4" class="pc-center"/>
+        </g>
+        <circle cx="18" cy="112" r="1.2" class="pc-dot"/>
+      </svg>
+      <svg class="rose-br" viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M6,122 Q20,72 70,10" stroke-width="1.1" fill="none" class="pc-vine"/>
+        <path d="M30,98 Q44,82 54,87 Q43,95 30,98Z" class="pc-leaf" opacity="0.68"/>
+        <path d="M52,66 Q66,50 76,56 Q64,64 52,66Z" class="pc-leaf" opacity="0.62"/>
+        <g transform="translate(70,12)">
+          <ellipse cx="0" cy="-7" rx="3.5" ry="5.5" class="pc-petal" transform="rotate(0)"/>
+          <ellipse cx="0" cy="-7" rx="3.5" ry="5.5" class="pc-petal" transform="rotate(60)"/>
+          <ellipse cx="0" cy="-7" rx="3.5" ry="5.5" class="pc-petal" transform="rotate(120)"/>
+          <ellipse cx="0" cy="-7" rx="3.5" ry="5.5" class="pc-petal" transform="rotate(180)"/>
+          <ellipse cx="0" cy="-7" rx="3.5" ry="5.5" class="pc-petal" transform="rotate(240)"/>
+          <ellipse cx="0" cy="-7" rx="3.5" ry="5.5" class="pc-petal" transform="rotate(300)"/>
+          <circle cx="0" cy="0" r="4" class="pc-center"/>
+        </g>
+        <circle cx="18" cy="112" r="1.2" class="pc-dot"/>
+      </svg>
+
+      <!-- ── SAGE CORNERS (t23) ── -->
+      <svg class="sage-tl" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M6,154 Q24,96 84,12" stroke-width="1.2" fill="none" class="sc-vine"/>
+        <path d="M44,98 Q62,82 66,64" stroke-width="0.8" fill="none" class="sc-vine" opacity="0.48"/>
+        <path d="M28,126 Q44,110 56,116 Q44,124 28,126Z" class="sc-leaf" opacity="0.72"/>
+        <path d="M28,126 Q44,114 56,116" stroke-width="0.5" fill="none" class="sc-vine" opacity="0.28"/>
+        <path d="M50,92 Q64,76 76,82 Q64,90 50,92Z" class="sc-leaf" opacity="0.66"/>
+        <path d="M50,92 Q64,80 76,82" stroke-width="0.5" fill="none" class="sc-vine" opacity="0.28"/>
+        <path d="M66,60 Q80,44 90,50 Q78,58 66,60Z" class="sc-leaf" opacity="0.6"/>
+        <path d="M18,138 Q28,130 34,133 Q26,138 18,138Z" class="sc-leaf" opacity="0.5"/>
+        <circle cx="82" cy="14" r="3.2" class="sc-berry"/>
+        <circle cx="90" cy="10" r="2.6" class="sc-berry" opacity="0.8"/>
+        <circle cx="74" cy="10" r="2.2" class="sc-berry" opacity="0.7"/>
+        <circle cx="86" cy="20" r="1.8" class="sc-berry" opacity="0.6"/>
+        <circle cx="36" cy="114" r="1.1" class="sc-berry" opacity="0.4"/>
+        <circle cx="58" cy="80" r="0.9" class="sc-berry" opacity="0.35"/>
+      </svg>
+      <svg class="sage-tr" viewBox="0 0 160 160" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M6,154 Q24,96 84,12" stroke-width="1.2" fill="none" class="sc-vine"/>
+        <path d="M28,126 Q44,110 56,116 Q44,124 28,126Z" class="sc-leaf" opacity="0.72"/>
+        <path d="M50,92 Q64,76 76,82 Q64,90 50,92Z" class="sc-leaf" opacity="0.66"/>
+        <path d="M66,60 Q80,44 90,50 Q78,58 66,60Z" class="sc-leaf" opacity="0.6"/>
+        <path d="M18,138 Q28,130 34,133 Q26,138 18,138Z" class="sc-leaf" opacity="0.5"/>
+        <circle cx="82" cy="14" r="3.2" class="sc-berry"/>
+        <circle cx="90" cy="10" r="2.6" class="sc-berry" opacity="0.8"/>
+        <circle cx="74" cy="10" r="2.2" class="sc-berry" opacity="0.7"/>
+        <circle cx="86" cy="20" r="1.8" class="sc-berry" opacity="0.6"/>
+      </svg>
+      <svg class="sage-bl" viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M6,124 Q20,76 68,12" stroke-width="1.1" fill="none" class="sc-vine"/>
+        <path d="M24,102 Q38,86 48,92 Q37,100 24,102Z" class="sc-leaf" opacity="0.68"/>
+        <path d="M44,72 Q58,56 68,62 Q56,70 44,72Z" class="sc-leaf" opacity="0.62"/>
+        <path d="M14,114 Q22,107 28,110 Q21,115 14,114Z" class="sc-leaf" opacity="0.48"/>
+        <circle cx="66" cy="14" r="2.8" class="sc-berry"/>
+        <circle cx="73" cy="10" r="2.2" class="sc-berry" opacity="0.75"/>
+        <circle cx="59" cy="10" r="1.8" class="sc-berry" opacity="0.65"/>
+      </svg>
+      <svg class="sage-br" viewBox="0 0 130 130" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M6,124 Q20,76 68,12" stroke-width="1.1" fill="none" class="sc-vine"/>
+        <path d="M24,102 Q38,86 48,92 Q37,100 24,102Z" class="sc-leaf" opacity="0.68"/>
+        <path d="M44,72 Q58,56 68,62 Q56,70 44,72Z" class="sc-leaf" opacity="0.62"/>
+        <path d="M14,114 Q22,107 28,110 Q21,115 14,114Z" class="sc-leaf" opacity="0.48"/>
+        <circle cx="66" cy="14" r="2.8" class="sc-berry"/>
+        <circle cx="73" cy="10" r="2.2" class="sc-berry" opacity="0.75"/>
+        <circle cx="59" cy="10" r="1.8" class="sc-berry" opacity="0.65"/>
       </svg>
 
       <div>

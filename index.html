@@ -6,7 +6,8 @@
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="X-Frame-Options" content="DENY">
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob:; connect-src 'self'; frame-ancestors 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://va.vercel-scripts.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob:; connect-src 'self' https://vitals.vercel-insights.com https://api.counterapi.dev; frame-ancestors 'none'">
+<script defer src="https://va.vercel-scripts.com/v1/script.js"></script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23FAF6EE' stroke='%23C9A84C' stroke-width='3'/%3E%3Ctext y='58' x='50' text-anchor='middle' font-size='52'%3E💍%3C/text%3E%3C/svg%3E">
 <title>✦ مصمم دعوات الأعراس الفاخرة</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -608,6 +609,9 @@ select.fancy-input option{background:#222;color:var(--cream)}
 /* ── Contact Button ── */
 #contact-btn{position:fixed;bottom:1.2rem;left:1.2rem;z-index:400;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);color:var(--gold);border-radius:50px;padding:.45rem 1rem;font-family:'Tajawal',sans-serif;font-size:.78rem;cursor:pointer;backdrop-filter:blur(6px);transition:background .2s}
 #contact-btn:hover{background:rgba(201,168,76,.22)}
+#visitor-counter{position:fixed;bottom:1.2rem;right:1.2rem;z-index:400;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);color:var(--gold-lt);border-radius:50px;padding:.4rem .9rem;font-family:'Tajawal',sans-serif;font-size:.72rem;backdrop-filter:blur(6px);display:flex;align-items:center;gap:.4rem;pointer-events:none}
+#visitor-counter .vc-dot{width:6px;height:6px;background:#4caf50;border-radius:50%;animation:pulse-dot 2s infinite}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
 
 /* ── Contact Modal ── */
 #contact-modal{display:none;position:fixed;inset:0;z-index:500;background:rgba(5,3,1,.85);backdrop-filter:blur(6px);align-items:center;justify-content:center}
@@ -1020,6 +1024,12 @@ select.fancy-input option{background:#222;color:var(--cream)}
 <!-- PETALS CANVAS — inside stage only -->
 <!-- ── CONTACT BUTTON ── -->
 <button id="contact-btn" onclick="document.getElementById('contact-modal').classList.add('on')">✉ تواصل معنا</button>
+
+<!-- ── VISITOR COUNTER ── -->
+<div id="visitor-counter">
+  <span class="vc-dot"></span>
+  <span id="vc-num">...</span> زائر
+</div>
 
 <!-- ── CONTACT MODAL ── -->
 <div id="contact-modal">
@@ -1707,7 +1717,17 @@ function recordAttempt(){
 /* sanitize text before inserting into DOM */
 function esc(str){const d=document.createElement('div');d.textContent=str;return d.innerHTML;}
 
-/* auto-unlock from Gumroad redirect: ?code=WI0049 */
+/* visitor counter */
+(async function loadVisitorCount(){
+  try{
+    const r=await fetch('https://api.counterapi.dev/v1/weddinginvite-space/visits/up');
+    const d=await r.json();
+    const el=document.getElementById('vc-num');
+    if(el&&d.count)el.textContent=Number(d.count).toLocaleString('ar');
+  }catch(e){}
+})();
+
+/* auto-unlock from Gumroad redirect */
 (async function autoUnlockFromURL(){
   try{
     const p=new URLSearchParams(window.location.search);

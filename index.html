@@ -1698,11 +1698,15 @@ function isValidCode(code){
   const prev=m===1?monthCode(y-1,12):monthCode(y,m-1);
   return c===monthCode(y,m)||c===prev;
 }
-const MAX_USES=5;
-function getUsesLeft(){const u=localStorage.getItem('wi_uses_left');return u===null?0:parseInt(u)}
-function isUnlocked(){return getUsesLeft()>0}
-function unlock(){if(!isUnlocked())localStorage.setItem('wi_uses_left',String(MAX_USES))}
-function useOne(){const u=getUsesLeft();if(u>0)localStorage.setItem('wi_uses_left',String(u-1))}
+const UNLOCK_HOURS=12;
+function isUnlocked(){const e=localStorage.getItem('wi_expiry');return e&&Date.now()<parseInt(e)}
+function unlock(){localStorage.setItem('wi_expiry',String(Date.now()+UNLOCK_HOURS*3600*1000))}
+function getTimeLeft(){
+  const e=parseInt(localStorage.getItem('wi_expiry')||'0');
+  const ms=e-Date.now();if(ms<=0)return'';
+  const h=Math.floor(ms/3600000),m=Math.floor((ms%3600000)/60000);
+  return h>0?`${h} ساعة و${m} دقيقة`:`${m} دقيقة`;
+}
 
 /* rate-limit: max 5 code attempts per hour */
 function getAttempts(){return JSON.parse(localStorage.getItem('wi_attempts')||'{"n":0,"t":0}')}
@@ -1740,7 +1744,7 @@ function esc(str){const d=document.createElement('div');d.textContent=str;return
         localStorage.setItem('wi_sale',sale);
         localStorage.setItem('wi_token',token);
         unlock();
-        setTimeout(()=>alert(`✦ تم الدفع بنجاح! لديك ${getUsesLeft()} مرة لتصدير PDF`),800);
+        setTimeout(()=>alert(`✦ تم الدفع بنجاح! لديك ${UNLOCK_HOURS} ساعة لتصدير PDF`),800);
       } else {
         alert('رابط الدفع غير صالح. تواصل معنا على kingdeed130@gmail.com');
       }
@@ -1762,7 +1766,7 @@ function checkCode(){
   if(isValidCode(code)){
     unlock();
     closePayModal();
-    alert(`✦ تم الفتح! لديك ${getUsesLeft()} محاولة لتصدير PDF`);
+    alert(`✦ تم الفتح! لديك ${UNLOCK_HOURS} ساعة لتصدير PDF`);
     expPDF();
   } else {
     document.getElementById('unlock-input').style.borderColor='#cc3333';
@@ -1800,9 +1804,6 @@ async function expPNG(){
 }
 async function expPDF(){
   if(!isUnlocked()){openPayModal();return;}
-  useOne();
-  const left=getUsesLeft();
-  if(left===0){alert('انتهت محاولاتك الـ 5. يمكنك الشراء مجدداً للحصول على 5 محاولات جديدة.')}
   showLoad('جاري إنشاء ملف PDF...');
   try{
     const c=await capture();const img=c.toDataURL('image/png');

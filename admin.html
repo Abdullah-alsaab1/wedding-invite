@@ -74,8 +74,8 @@ function checkPwd(){
 async function loadStats(){
   try{
     const [rv, rp] = await Promise.all([
-      fetch('https://api.counterapi.dev/v1/weddinginvite-space/visits/get'),
-      fetch('https://api.counterapi.dev/v1/weddinginvite-space/pdf-downloads/get')
+      fetch('https://api.counterapi.dev/v1/weddinginvite-space/visits/info'),
+      fetch('https://api.counterapi.dev/v1/weddinginvite-space/pdf-downloads/info')
     ]);
     const dv = await rv.json();
     const dp = await rp.json();

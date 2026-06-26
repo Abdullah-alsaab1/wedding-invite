@@ -1292,9 +1292,9 @@ select.fancy-input option{background:#222;color:var(--cream)}
     <div class="sec-lbl">تحميل الدعوة</div>
     <div class="btn-row">
       <button class="btn btn-ol" onclick="expPNG()" title="مجاني — بعلامة مائية">🖼️ PNG مجاني</button>
-      <button class="btn btn-sl" onclick="expPDF()" title="مدفوع — بدون علامة مائية">📄 PDF 💎</button>
+      <button class="btn btn-sl" id="pdf-small-btn" onclick="expPDF()" title="PDF بدون علامة مائية">📄 PDF 💎</button>
     </div>
-    <button class="btn-main" onclick="expPDF()">⬇ تحميل PDF الفاخر 💎 $2</button>
+    <button class="btn-main" id="pdf-main-btn" onclick="expPDF()">⬇ تحميل PDF الفاخر 💎 $2</button>
   </div>
 
 </aside>
@@ -2194,10 +2194,29 @@ function esc(str){const d=document.createElement('div');d.textContent=str;return
 
 /* visitor counter + free banner */
 (async function loadStats(){
-  // show banner immediately by default
   const banner=document.getElementById('free-banner');
   const leftEl=document.getElementById('free-left');
-  if(banner&&leftEl){leftEl.textContent=FREE_LIMIT;banner.classList.add('on');}
+  const mainBtn=document.getElementById('pdf-main-btn');
+  const smallBtn=document.getElementById('pdf-small-btn');
+  const alreadyUsed=localStorage.getItem('wi_free_used')==='1';
+
+  function setFreeUI(left){
+    if(banner&&leftEl){leftEl.textContent=left;banner.classList.add('on');}
+    if(!alreadyUsed&&!isUnlocked()){
+      if(mainBtn)mainBtn.textContent=`🎁 تحميل PDF مجاني (باقي ${left})`;
+      if(smallBtn){smallBtn.textContent='📄 PDF مجاني 🎁';smallBtn.title='مجاني للأوائل';}
+    }
+  }
+  function setPaidUI(){
+    if(banner)banner.classList.remove('on');
+    if(mainBtn)mainBtn.textContent='⬇ تحميل PDF الفاخر 💎 $2';
+    if(smallBtn){smallBtn.textContent='📄 PDF 💎';smallBtn.title='PDF بدون علامة مائية';}
+  }
+
+  // show default immediately
+  if(!alreadyUsed&&!isUnlocked()){
+    setFreeUI(FREE_LIMIT);
+  }
 
   try{
     const rv=await fetch('https://api.countapi.xyz/hit/weddinginvite-space/visits');
@@ -2211,11 +2230,8 @@ function esc(str){const d=document.createElement('div');d.textContent=str;return
     const dp=await rp.json();
     const used=dp.value??0;
     const left=FREE_LIMIT-used;
-    if(left<=0){
-      if(banner)banner.classList.remove('on');
-    } else {
-      if(leftEl)leftEl.textContent=left;
-    }
+    if(left<=0){setPaidUI();}
+    else{setFreeUI(left);}
   }catch(e){}
 })();
 

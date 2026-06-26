@@ -2665,7 +2665,8 @@ async function verifyPayPalOrder(){
       const errs={
         order_not_found:'رقم الطلب غير موجود — تأكد من نسخه بشكل صحيح',
         status_PENDING:'الدفع لم يكتمل بعد — انتظر قليلاً وحاول مجدداً',
-        amount_or_payee_mismatch:'مبلغ الدفع غير مطابق',
+        amount_mismatch:'مبلغ الدفع غير مطابق ($2 مطلوب)',
+        amount_or_payee_mismatch:'مبلغ الدفع غير مطابق ($2 مطلوب)',
         too_many_requests:'حاولت كثيراً — انتظر دقيقة',
         verification_failed:'خطأ في التحقق — تواصل معنا على kingdeed130@gmail.com'
       };
@@ -3018,8 +3019,8 @@ async function expVideo(){
       lines.slice(0,3).forEach((l,i)=>ctx.fillText(l,cx,y+440+i*24));
     }
 
-    if(dateVal&&p>.75){row('📅  '+dateVal,540,18,'#3D2608',.75,.1);}
-    if(venue&&p>.83){row('📍  '+venue,578,17,'#3D2608',.83,.1);}
+    if(dateVal&&p>.75){row('📅  '+dateVal,530,18,'#3D2608',.75,.1);}
+    if(venue&&p>.78){row('📍  '+venue,565,17,'#3D2608',.78,.1);}
 
     divider(620,90,.88);
     if(footer&&p>.9){row(footer,655,16,'#9A7820',.9,.08);}
@@ -3110,6 +3111,7 @@ async function expVideo(){
   const a=document.createElement('a');
   a.download=`دعوة-${n1}-و-${n2}${vidUnlocked?'':'-معاينة'}.${isMP4?'mp4':'webm'}`;
   if(vidUnlocked) incVidCount();
+  track('video');
   a.href=url;a.click();
   setTimeout(()=>URL.revokeObjectURL(url),8000);
   if(!vidUnlocked){
@@ -3432,6 +3434,7 @@ document.addEventListener('input',()=>saveForm());
 document.addEventListener('change',()=>saveForm());
 
 window.addEventListener('DOMContentLoaded',()=>{
+  track('visit');
   const tmr=new Date(); tmr.setDate(tmr.getDate()+1);
   document.getElementById('dateG').min=tmr.toISOString().split('T')[0];
 

@@ -13,9 +13,9 @@ export default async function handler(req, res) {
   }
 
   const { event } = req.body || {};
-  const allowed = ['visit', 'pdf', 'video'];
-  if (!allowed.includes(event)) return res.status(400).end();
+  const allowed = { visit:'wi:visits', pdf:'wi:pdfs', video:'wi:videos' };
+  if (!allowed[event]) return res.status(400).end();
 
-  await incr(`wi:${event}s`).catch(() => {});
+  await incr(allowed[event]).catch(() => {});
   return res.status(200).json({ ok: true });
 }

@@ -54,6 +54,10 @@ h1{color:#C9A84C;font-size:1.6rem;margin-bottom:2rem;text-align:center}
     </div>
   </div>
   <p style="font-size:.7rem;opacity:.4;text-align:center">آخر تحديث: <span id="s-time"></span></p>
+  <p id="stats-note" style="display:none;font-size:.72rem;color:#C9A84C;opacity:.7;text-align:center;margin-top:.8rem;line-height:1.6">
+    ⚠️ الإحصائيات تُتتبع حالياً على مستوى كل جهاز منفصل.<br>
+    لعرض إحصائيات موحّدة من جميع الزوار، يُنصح بربط قاعدة بيانات (مثل Vercel KV أو Supabase).
+  </p>
 </div>
 
 <script>
@@ -72,27 +76,36 @@ function checkPwd(){
 }
 
 async function loadStats(){
+  // Stats now tracked per-device via localStorage on client side
+  // Server-side aggregate stats require a database — coming soon
+  const now = new Date().toLocaleString('ar');
+
+  // Try to get Vercel analytics via our own endpoint
   try{
-    const [rv, rp] = await Promise.all([
-      fetch('https://api.countapi.xyz/get/weddinginvite-space/visits'),
-      fetch('https://api.countapi.xyz/get/weddinginvite-space/pdf-downloads')
-    ]);
-    const dv = await rv.json();
-    const dp = await rp.json();
-
-    const visits = dv.value || 0;
-    const pdfs   = dp.value || 0;
-    const freeLeft = Math.max(0, FREE_LIMIT - pdfs);
-    const rate = visits > 0 ? ((pdfs/visits)*100).toFixed(1)+'%' : '0%';
-
-    document.getElementById('s-visits').textContent   = visits.toLocaleString('ar');
-    document.getElementById('s-pdfs').textContent     = pdfs.toLocaleString('ar');
-    document.getElementById('s-free-left').textContent= freeLeft.toLocaleString('ar');
-    document.getElementById('s-rate').textContent     = rate;
-    document.getElementById('s-time').textContent     = new Date().toLocaleString('ar');
+    const r = await fetch('/api/stats');
+    if(r.ok){
+      const d = await r.json();
+      document.getElementById('s-visits').textContent   = (d.visits||'—').toLocaleString('ar');
+      document.getElementById('s-pdfs').textContent     = (d.pdfs||'—').toLocaleString('ar');
+      document.getElementById('s-free-left').textContent= (d.freeLeft||'—').toLocaleString('ar');
+      document.getElementById('s-rate').textContent     = d.rate||'—';
+    } else {
+      showPlaceholders();
+    }
   }catch(e){
-    alert('خطأ في تحميل الإحصائيات');
+    showPlaceholders();
   }
+  document.getElementById('s-time').textContent = now;
+}
+
+function showPlaceholders(){
+  // Stats tracked per-device; aggregate stats need server-side DB
+  document.getElementById('s-visits').textContent   = '—';
+  document.getElementById('s-pdfs').textContent     = '—';
+  document.getElementById('s-free-left').textContent= '—';
+  document.getElementById('s-rate').textContent     = '—';
+  const note = document.getElementById('stats-note');
+  if(note) note.style.display = 'block';
 }
 </script>
 </body>

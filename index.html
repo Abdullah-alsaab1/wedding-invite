@@ -1665,12 +1665,7 @@ if(new URLSearchParams(location.search).get('_reset')==='1'){
       <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:middle;margin-left:4px"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.026.175-.041.26-.93 4.778-4.005 7.201-9.138 7.201h-2.19a.563.563 0 0 0-.556.479l-1.187 7.527h-.506l-.24 1.516a.56.56 0 0 0 .554.647h3.882c.46 0 .85-.334.922-.788.06-.26.76-4.852.816-5.09a.932.932 0 0 1 .923-.788h.58c3.76 0 6.705-1.528 7.565-5.946.36-1.847.174-3.388-.777-4.477z"/></svg>
       ادفع بـ PayPal — $2
     </a>
-    <div id="paypal-msg" style="display:none;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:.8rem;font-size:.75rem;color:#E8D5A3;text-align:center;margin-top:.5rem;line-height:1.8">
-      ✅ أكملت الدفع على PayPal؟<br>
-      <button onclick="paypalUnlock(this)" style="margin-top:.5rem;background:linear-gradient(90deg,#B8902A,#E8C060);border:none;border-radius:7px;color:#1a0a02;font-weight:700;padding:.5rem 1.2rem;cursor:pointer;font-family:'Tajawal',sans-serif;font-size:.8rem">
-        اضغط هنا لفتح الموقع فوراً ⚡
-      </button>
-    </div>
+    <div id="paypal-msg" style="display:none"></div>
     <div class="pay-divider">— أو أدخل كود الفتح إذا دفعت مسبقاً —</div>
     <div class="pay-code-row">
       <input id="unlock-input" placeholder="أدخل الكود هنا" maxlength="20" onkeydown="if(event.key==='Enter')checkCode()">
@@ -2592,7 +2587,26 @@ if(document.readyState==='loading'){
   }catch(e){}
 })();
 
-function onPayPalClick(){document.getElementById('paypal-msg').style.display='block'}
+function onPayPalClick(){
+  // Show big full-screen overlay after PayPal tab opens
+  const overlay=document.createElement('div');
+  overlay.id='pp-overlay';
+  overlay.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(6,4,2,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem;text-align:center;animation:fadeIn .3s';
+  overlay.innerHTML=`
+    <div style="font-size:3rem;margin-bottom:1rem">💳</div>
+    <div style="font-size:1.2rem;font-weight:700;color:#C9A84C;margin-bottom:.5rem">تم فتح PayPal في تبويب جديد</div>
+    <div style="font-size:.85rem;color:#E8D5A3;opacity:.8;margin-bottom:2rem;line-height:1.8">
+      أكمل الدفع هناك، ثم ارجع هنا<br>واضغط الزر أدناه لفتح موقعك
+    </div>
+    <button onclick="paypalUnlock(this)" style="background:linear-gradient(90deg,#B8902A,#E8C060);border:none;border-radius:10px;color:#1a0a02;font-weight:700;padding:.9rem 2rem;cursor:pointer;font-family:'Tajawal',sans-serif;font-size:1rem;width:100%;max-width:280px">
+      ✅ دفعت — افتح لي الموقع الآن
+    </button>
+    <button onclick="document.getElementById('pp-overlay').remove()" style="margin-top:1rem;background:none;border:none;color:rgba(201,168,76,.5);font-size:.75rem;cursor:pointer;font-family:'Tajawal',sans-serif">
+      لم أدفع بعد — إغلاق
+    </button>
+  `;
+  document.body.appendChild(overlay);
+}
 async function paypalUnlock(btn){
   btn.disabled=true;btn.textContent='⏳ جاري الفتح...';
   try{

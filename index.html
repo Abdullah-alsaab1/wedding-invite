@@ -1679,11 +1679,14 @@ async function capture(){
 }
 /* ── Unlock system ── */
 const SITE='weddinginvite.space';
+function monthCode(year,month){return'WI'+String((((year-2026)*12)+month)*7).padStart(4,'0')}
 function isValidCode(code){
   const c=code.trim().toUpperCase();
-  if(!c.startsWith('WI')||c.length<6)return false;
-  const num=parseInt(c.slice(2));
-  return !isNaN(num)&&num>0&&num%7===0;
+  if(!c.startsWith('WI')||c.length<4)return false;
+  const now=new Date();
+  const y=now.getFullYear(),m=now.getMonth()+1;
+  const prev=m===1?monthCode(y-1,12):monthCode(y,m-1);
+  return c===monthCode(y,m)||c===prev;
 }
 const MAX_USES=5;
 function getUsesLeft(){const u=localStorage.getItem('wi_uses_left');return u===null?0:parseInt(u)}
@@ -1705,14 +1708,22 @@ function recordAttempt(){
 function esc(str){const d=document.createElement('div');d.textContent=str;return d.innerHTML;}
 
 /* auto-unlock from Gumroad redirect: ?code=WI0049 */
-(function autoUnlockFromURL(){
+(async function autoUnlockFromURL(){
   try{
     const p=new URLSearchParams(window.location.search);
-    const c=p.get('code');
-    if(c&&isValidCode(c)){
-      unlock();
+    const sale=p.get('sale'), token=p.get('token');
+    if(sale&&token){
       history.replaceState({},'',window.location.pathname);
-      setTimeout(()=>alert(`✦ تم الدفع بنجاح! لديك ${getUsesLeft()} مرة لتصدير PDF`),800);
+      const res=await fetch(`/api/check?sale=${encodeURIComponent(sale)}&token=${encodeURIComponent(token)}`);
+      const data=await res.json();
+      if(data.valid){
+        localStorage.setItem('wi_sale',sale);
+        localStorage.setItem('wi_token',token);
+        unlock();
+        setTimeout(()=>alert(`✦ تم الدفع بنجاح! لديك ${getUsesLeft()} مرة لتصدير PDF`),800);
+      } else {
+        alert('رابط الدفع غير صالح. تواصل معنا على kingdeed130@gmail.com');
+      }
     }
   }catch(e){}
 })();

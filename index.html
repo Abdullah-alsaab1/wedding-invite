@@ -2903,7 +2903,7 @@ async function expVideo(){
 
   // ── PHASE 3: Full invitation (5-14s) ──
   function drawFullCard(t){
-    const p=clamp((t-16)/26,0,1);
+    const p=clamp((t-16)/16,0,1); // reveal completes by t≈32, then holds static till fade
     const cx=CX, cy=CY*.88;
     const cw=490, ch=780;
     const x=cx-cw/2, y=cy-ch/2;

@@ -277,10 +277,10 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.3);box-shadow:0 
 .btn-main:active{transform:translateY(0)}
 
 /* STAGE */
-.stage{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:3rem 2rem;background:#0D1B2A;position:relative;overflow:hidden}
+.stage{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:1.2rem 1.5rem 1.5rem;background:#0D1B2A;position:relative;overflow:hidden}
 .stage-bg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;object-fit:cover}
 .stage>*:not(.stage-bg):not(.petals-wrap):not(#free-banner):not(#contact-btn):not(#visitor-counter):not(#contact-modal):not(#pay-modal){position:relative;z-index:1}
-.stage-lbl{font-size:.6rem;letter-spacing:.22em;color:rgba(232,201,108,.55);text-transform:uppercase;margin-bottom:1.6rem;animation:fadeIn 1s .5s both}
+.stage-lbl{font-size:.6rem;letter-spacing:.22em;color:rgba(232,201,108,.55);text-transform:uppercase;margin-bottom:.6rem;animation:fadeIn 1s .5s both}
 
 /* PETALS */
 /* petals behind everything, only inside stage */
@@ -818,42 +818,123 @@ select.fancy-input option{background:#222;color:var(--cream)}
 #free-banner{position:fixed;top:0;left:0;right:0;z-index:600;background:linear-gradient(90deg,#5C3D00,#C9A84C,#E8C860,#C9A84C,#5C3D00);background-size:200% 100%;animation:banner-shimmer 3s linear infinite;color:#1a0a02;text-align:center;padding:.5rem 1rem;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:700;display:none;cursor:pointer;letter-spacing:.02em;box-shadow:0 2px 12px rgba(201,168,76,.5)}
 #free-banner.on{display:block}
 @keyframes banner-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-#visitor-counter{position:fixed;bottom:1.2rem;right:1.2rem;z-index:400;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);color:var(--gold-lt);border-radius:50px;padding:.4rem .9rem;font-family:'Tajawal',sans-serif;font-size:.72rem;backdrop-filter:blur(6px);display:flex;align-items:center;gap:.4rem;pointer-events:none}
-#visitor-counter .vc-dot{width:6px;height:6px;background:#4caf50;border-radius:50%;animation:pulse-dot 2s infinite}
+/* visitor counter — moved to bottom center */
+#visitor-counter{position:fixed;bottom:1rem;left:50%;transform:translateX(-50%);z-index:400;background:rgba(10,7,4,.7);border:1px solid rgba(201,168,76,.18);color:rgba(232,213,163,.55);border-radius:50px;padding:.28rem .9rem;font-family:'Tajawal',sans-serif;font-size:.64rem;backdrop-filter:blur(6px);display:flex;align-items:center;gap:.35rem;pointer-events:none;white-space:nowrap}
+#visitor-counter .vc-dot{width:5px;height:5px;background:#4caf50;border-radius:50%;animation:pulse-dot 2s infinite}
 @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
 
 /* ── Chat Widget ── */
-#chat-btn{position:fixed;bottom:4.2rem;right:1.2rem;z-index:500;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#B8902A,#E8C060);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.3rem;box-shadow:0 4px 18px rgba(201,168,76,.45);transition:transform .2s,box-shadow .2s}
-#chat-btn:hover{transform:scale(1.1);box-shadow:0 6px 24px rgba(201,168,76,.6)}
-#chat-btn .chat-notif{position:absolute;top:-3px;right:-3px;width:12px;height:12px;background:#e74c3c;border-radius:50%;border:2px solid #0d0a04;animation:pulse-dot 2s infinite}
-#chat-panel{position:fixed;bottom:5.5rem;right:1.2rem;z-index:500;width:320px;max-width:calc(100vw - 2.4rem);background:linear-gradient(160deg,#1a1208,#0d0a04);border:1px solid rgba(201,168,76,.35);border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.7);display:none;flex-direction:column;overflow:hidden;animation:chatIn .25s cubic-bezier(.22,1,.36,1)}
-#chat-panel.open{display:flex}
-@keyframes chatIn{from{opacity:0;transform:translateY(12px) scale(.96)}to{opacity:1;transform:none}}
-#chat-header{background:linear-gradient(90deg,#2a1a04,#1a1008);padding:.75rem 1rem;display:flex;align-items:center;gap:.6rem;border-bottom:1px solid rgba(201,168,76,.2)}
-#chat-header .ch-avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#B8902A,#E8C060);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0}
-#chat-header .ch-info{flex:1}
-#chat-header .ch-name{font-size:.78rem;font-weight:700;color:var(--gold)}
-#chat-header .ch-status{font-size:.62rem;color:#4caf50;display:flex;align-items:center;gap:.3rem}
-#chat-header .ch-dot{width:5px;height:5px;background:#4caf50;border-radius:50%}
-#chat-close{background:none;border:none;color:var(--gold-lt);cursor:pointer;font-size:1rem;opacity:.6;padding:.2rem;transition:opacity .2s}
-#chat-close:hover{opacity:1}
-#chat-messages{flex:1;overflow-y:auto;padding:.75rem;display:flex;flex-direction:column;gap:.55rem;max-height:280px;min-height:120px}
+#chat-btn{
+  position:fixed;bottom:1.2rem;right:1.2rem;z-index:600;
+  display:flex;align-items:center;gap:.5rem;
+  background:linear-gradient(135deg,#8B6914,#C9A84C,#E8C060);
+  border:none;border-radius:50px;cursor:pointer;
+  padding:.55rem 1.1rem .55rem .75rem;
+  color:#0d0804;font-family:'Tajawal',sans-serif;font-size:.8rem;font-weight:700;
+  box-shadow:0 4px 20px rgba(201,168,76,.5),0 1px 0 rgba(255,255,255,.15) inset;
+  transition:transform .2s,box-shadow .2s;letter-spacing:.02em
+}
+#chat-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(201,168,76,.65)}
+#chat-btn .cb-icon{font-size:1.1rem;line-height:1}
+#chat-btn .chat-notif{width:9px;height:9px;background:#e74c3c;border-radius:50%;border:2px solid #0d0804;position:absolute;top:4px;right:4px;animation:pulse-dot 2s infinite}
+
+#chat-panel{
+  position:fixed;bottom:4.2rem;right:1.2rem;z-index:600;
+  width:340px;max-width:calc(100vw - 2rem);
+  background:#0f0b06;
+  border:1px solid rgba(201,168,76,.28);
+  border-radius:18px;
+  box-shadow:0 20px 60px rgba(0,0,0,.8),0 0 0 1px rgba(201,168,76,.08);
+  display:none;flex-direction:column;overflow:hidden;
+  transform-origin:bottom right
+}
+#chat-panel.open{display:flex;animation:chatIn .22s cubic-bezier(.34,1.56,.64,1)}
+@keyframes chatIn{from{opacity:0;transform:scale(.88) translateY(10px)}to{opacity:1;transform:none}}
+
+#chat-header{
+  background:linear-gradient(135deg,#1e1306,#160e04);
+  padding:.85rem 1rem;display:flex;align-items:center;gap:.7rem;
+  border-bottom:1px solid rgba(201,168,76,.15);flex-shrink:0
+}
+.ch-avatar{
+  width:38px;height:38px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,#8B6914,#E8C060);
+  display:flex;align-items:center;justify-content:center;font-size:1.1rem;
+  box-shadow:0 0 0 3px rgba(201,168,76,.2)
+}
+.ch-info{flex:1}
+.ch-name{font-size:.82rem;font-weight:700;color:#E8C060;margin-bottom:.1rem}
+.ch-status{font-size:.62rem;color:#4caf50;display:flex;align-items:center;gap:.3rem}
+.ch-dot{width:5px;height:5px;background:#4caf50;border-radius:50%;animation:pulse-dot 2s infinite}
+#chat-close{
+  background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.15);
+  color:rgba(201,168,76,.6);cursor:pointer;
+  width:28px;height:28px;border-radius:50%;font-size:.85rem;
+  display:flex;align-items:center;justify-content:center;transition:all .18s;flex-shrink:0
+}
+#chat-close:hover{background:rgba(201,168,76,.2);color:var(--gold)}
+
+#chat-messages{
+  flex:1;overflow-y:auto;padding:.85rem;
+  display:flex;flex-direction:column;gap:.6rem;
+  max-height:260px;min-height:100px;
+  scroll-behavior:smooth
+}
 #chat-messages::-webkit-scrollbar{width:3px}
-#chat-messages::-webkit-scrollbar-thumb{background:rgba(201,168,76,.3);border-radius:2px}
-.cm{max-width:82%;padding:.5rem .75rem;border-radius:12px;font-size:.78rem;line-height:1.6;font-family:'Tajawal',sans-serif;word-break:break-word}
-.cm.bot{background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.15);color:var(--cream);border-radius:12px 12px 12px 2px;align-self:flex-start}
-.cm.user{background:linear-gradient(135deg,#B8902A,#C9A84C);color:#1a0a02;font-weight:600;border-radius:12px 12px 2px 12px;align-self:flex-end}
-.cm.typing{opacity:.6}
-.cm.typing span{display:inline-block;animation:dot-bounce .8s infinite}
-.cm.typing span:nth-child(2){animation-delay:.15s}
-.cm.typing span:nth-child(3){animation-delay:.3s}
-@keyframes dot-bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-4px)}}
-#chat-input-row{display:flex;gap:.5rem;padding:.6rem .75rem;border-top:1px solid rgba(201,168,76,.15)}
-#chat-input{flex:1;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.25);border-radius:20px;color:var(--cream);font-family:'Tajawal',sans-serif;font-size:.78rem;padding:.42rem .85rem;outline:none;direction:rtl;resize:none;height:36px;line-height:1.5;transition:border-color .2s}
-#chat-input:focus{border-color:rgba(201,168,76,.55)}
-#chat-send{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#B8902A,#E8C060);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;transition:transform .15s}
-#chat-send:hover{transform:scale(1.1)}
-#chat-send:disabled{opacity:.4;cursor:default;transform:none}
+#chat-messages::-webkit-scrollbar-thumb{background:rgba(201,168,76,.2);border-radius:2px}
+
+.cm{max-width:85%;font-size:.8rem;line-height:1.65;font-family:'Tajawal',sans-serif;word-break:break-word;animation:msgIn .18s ease-out}
+@keyframes msgIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+.cm.bot{
+  background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.14);
+  color:#E8D5A3;border-radius:14px 14px 14px 3px;align-self:flex-start;
+  padding:.55rem .85rem
+}
+.cm.user{
+  background:linear-gradient(135deg,#7A5C10,#C9A84C);
+  color:#0d0804;font-weight:600;
+  border-radius:14px 14px 3px 14px;align-self:flex-end;
+  padding:.55rem .85rem
+}
+.cm.typing span{display:inline-block;font-size:1rem;animation:dot-bounce .9s infinite;color:rgba(201,168,76,.6)}
+.cm.typing span:nth-child(2){animation-delay:.18s}
+.cm.typing span:nth-child(3){animation-delay:.36s}
+@keyframes dot-bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+
+/* Quick skill chips */
+#chat-skills{display:flex;flex-wrap:wrap;gap:.38rem;padding:.55rem .85rem;border-top:1px solid rgba(201,168,76,.1);flex-shrink:0}
+.skill-chip{
+  background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.22);
+  color:rgba(232,213,163,.8);border-radius:20px;
+  padding:.28rem .7rem;font-size:.7rem;font-family:'Tajawal',sans-serif;
+  cursor:pointer;transition:all .15s;white-space:nowrap
+}
+.skill-chip:hover{background:rgba(201,168,76,.18);border-color:rgba(201,168,76,.5);color:#E8C060}
+
+#chat-input-row{
+  display:flex;gap:.45rem;padding:.6rem .75rem;
+  border-top:1px solid rgba(201,168,76,.1);flex-shrink:0;
+  background:rgba(0,0,0,.2)
+}
+#chat-input{
+  flex:1;background:rgba(201,168,76,.05);
+  border:1px solid rgba(201,168,76,.2);border-radius:22px;
+  color:#E8D5A3;font-family:'Tajawal',sans-serif;font-size:.8rem;
+  padding:.45rem .9rem;outline:none;direction:rtl;
+  transition:border-color .2s,background .2s
+}
+#chat-input:focus{border-color:rgba(201,168,76,.5);background:rgba(201,168,76,.08)}
+#chat-input::placeholder{color:rgba(201,168,76,.3);font-size:.75rem}
+#chat-send{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,#8B6914,#E8C060);
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.9rem;transition:transform .15s,box-shadow .15s;
+  box-shadow:0 2px 8px rgba(201,168,76,.3)
+}
+#chat-send:hover{transform:scale(1.1);box-shadow:0 4px 14px rgba(201,168,76,.5)}
+#chat-send:disabled{opacity:.35;cursor:default;transform:none}
 
 /* ── Contact Modal ── */
 #contact-modal{display:none;position:fixed;inset:0;z-index:500;background:rgba(5,3,1,.85);backdrop-filter:blur(6px);align-items:center;justify-content:center}
@@ -1356,8 +1437,9 @@ if(new URLSearchParams(location.search).get('_reset')==='1'){
 <button id="contact-btn" onclick="document.getElementById('contact-modal').classList.add('on')">✉ تواصل معنا</button>
 
 <!-- ── CHAT WIDGET ── -->
-<button id="chat-btn" onclick="toggleChat()" title="مساعدة فورية">
-  💬
+<button id="chat-btn" onclick="toggleChat()">
+  <span class="cb-icon">💬</span>
+  مساعدة فورية
   <span class="chat-notif"></span>
 </button>
 <div id="chat-panel">
@@ -1365,16 +1447,23 @@ if(new URLSearchParams(location.search).get('_reset')==='1'){
     <div class="ch-avatar">💍</div>
     <div class="ch-info">
       <div class="ch-name">مساعد دعوات الأعراس</div>
-      <div class="ch-status"><span class="ch-dot"></span> متاح الآن</div>
+      <div class="ch-status"><span class="ch-dot"></span> متاح الآن — يرد فوراً</div>
     </div>
     <button id="chat-close" onclick="toggleChat()">✕</button>
   </div>
   <div id="chat-messages">
-    <div class="cm bot">أهلاً! أنا مساعدك في تصميم دعوة زفافك. كيف أقدر أساعدك؟ 💍</div>
+    <div class="cm bot">أهلاً وسهلاً! 👋 أنا مساعدك لتصميم دعوة زفاف مميزة. اختر سؤالاً أو اكتب ما تريد.</div>
+  </div>
+  <div id="chat-skills">
+    <button class="skill-chip" onclick="askSkill('كم سعر PDF؟')">💰 السعر</button>
+    <button class="skill-chip" onclick="askSkill('كيف أبدأ؟')">🚀 كيف أبدأ</button>
+    <button class="skill-chip" onclick="askSkill('كم عدد القوالب؟')">🎨 القوالب</button>
+    <button class="skill-chip" onclick="askSkill('كيف أدفع؟')">💳 الدفع</button>
+    <button class="skill-chip" onclick="askSkill('واجهت مشكلة')">⚠️ مشكلة</button>
   </div>
   <div id="chat-input-row">
     <button id="chat-send" onclick="sendChat()">➤</button>
-    <input id="chat-input" placeholder="اكتب سؤالك..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}">
+    <input id="chat-input" placeholder="اكتب سؤالك..." onkeydown="if(event.key==='Enter')sendChat()">
   </div>
 </div>
 
@@ -2514,6 +2603,14 @@ function showTyping(){
   box.scrollTop=box.scrollHeight;
 }
 function removeTyping(){const t=document.getElementById('chat-typing');if(t)t.remove();}
+
+function askSkill(question){
+  document.getElementById('chat-input').value=question;
+  // hide chips after first use
+  const skills=document.getElementById('chat-skills');
+  if(skills)skills.style.display='none';
+  sendChat();
+}
 
 async function sendChat(){
   const input=document.getElementById('chat-input');

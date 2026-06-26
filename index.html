@@ -1425,6 +1425,11 @@ select.fancy-input option{background:#222;color:var(--cream)}
 <div id="loading"><div class="spin"></div><div class="spin-txt" id="spintxt">جاري التجهيز...</div></div>
 
 <script>
+/* ─── CONSTANTS ─── */
+const FREE_LIMIT=100;
+const UNLOCK_HOURS=12;
+const SITE='weddinginvite.space';
+
 /* ─── PETALS ─── */
 (function spawnPetals(){
   const wrap=document.getElementById('petals');
@@ -1736,7 +1741,6 @@ async function capture(){
   return c;
 }
 /* ── Unlock system ── */
-const SITE='weddinginvite.space';
 function monthCode(year,month){return'WI'+String((((year-2026)*12)+month)*7).padStart(4,'0')}
 function isValidCode(code){
   const c=code.trim().toUpperCase();
@@ -1746,7 +1750,6 @@ function isValidCode(code){
   const prev=m===1?monthCode(y-1,12):monthCode(y,m-1);
   return c===monthCode(y,m)||c===prev;
 }
-const UNLOCK_HOURS=12;
 function isUnlocked(){const e=localStorage.getItem('wi_expiry');return e&&Date.now()<parseInt(e)}
 function unlock(){localStorage.setItem('wi_expiry',String(Date.now()+UNLOCK_HOURS*3600*1000))}
 function getTimeLeft(){
@@ -1859,21 +1862,20 @@ function addWatermark(canvas){
 async function expPNG(){
   showLoad('جاري تحضير الصورة...');
   try{
-    let c=await capture();
-    if(!isUnlocked())c=addWatermark(c);
+    const c=await capture();
+    const img=isUnlocked()?c:addWatermark(c);
     const a=document.createElement('a');
     a.download=`دعوة-${v('n1')}-و-${v('n2')}.png`;
-    a.href=c.toDataURL('image/png');
+    a.href=img.toDataURL('image/png');
     a.click();
   }finally{hideLoad()}
 }
-const FREE_LIMIT=100;
 async function checkFreeSlots(){
   try{
     const r=await fetch('https://api.countapi.xyz/get/weddinginvite-space/pdf-downloads');
+    if(!r.ok)return true;
     const d=await r.json();
-    const used=d.value??0;
-    return used<FREE_LIMIT;
+    return(d.value??0)<FREE_LIMIT;
   }catch{return true;}
 }
 async function incrementPDFCount(){

@@ -41,8 +41,8 @@ async function verifyOrder(orderId) {
   if (!res.ok) return { valid: false, reason: 'order_not_found' };
   const order = await res.json();
 
-  // Must be COMPLETED
-  if (order.status !== 'COMPLETED') {
+  // Accept COMPLETED or APPROVED (on-hold payments are APPROVED)
+  if (!['COMPLETED','APPROVED'].includes(order.status)) {
     return { valid: false, reason: `status_${order.status}` };
   }
 
@@ -50,14 +50,11 @@ async function verifyOrder(orderId) {
   const units = order.purchase_units || [];
   const validUnit = units.find(u => {
     const amount = u.amount || {};
-    const payee  = u.payee  || {};
-    const amountOk   = amount.value === EXPECTED_AMOUNT && amount.currency_code === EXPECTED_CURRENCY;
-    const payeeOk    = !EXPECTED_PAYEE || payee.email_address?.toLowerCase() === EXPECTED_PAYEE.toLowerCase();
-    return amountOk && payeeOk;
+    return amount.value === EXPECTED_AMOUNT && amount.currency_code === EXPECTED_CURRENCY;
   });
 
   if (!validUnit) {
-    return { valid: false, reason: 'amount_or_payee_mismatch' };
+    return { valid: false, reason: 'amount_mismatch' };
   }
 
   return { valid: true };

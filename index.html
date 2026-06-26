@@ -2727,7 +2727,7 @@ async function expVideo(){
   // Input data
   const gi=id=>{const el=document.getElementById(id);return el?el.value.trim():''};
   const n1=gi('n1')||'العريس', n2=gi('n2')||'العروسة';
-  const dateVal=gi('date')||'', venue=gi('venue')||'';
+  const dateVal=document.getElementById('c-date')?.textContent||gi('dateG')||'', venue=gi('venue')||'';
   const msg=gi('msg')||'', footer=gi('footer')||'';
 
   // Recording

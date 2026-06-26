@@ -964,8 +964,9 @@ select.fancy-input option{background:#222;color:var(--cream)}
 .pay-features li::before{content:'✦ ';color:var(--gold);opacity:.7}
 .pay-price{font-family:'Cormorant Garamond',serif;font-size:2rem;color:var(--gold);margin-bottom:1rem}
 .pay-price span{font-size:.85rem;opacity:.6;font-family:'Tajawal',sans-serif}
-.pay-btn{display:block;width:100%;padding:.75rem;background:linear-gradient(90deg,#B8902A,#E8C060,#B8902A);background-size:200%;border:none;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:.9rem;font-weight:700;color:#1a0a02;cursor:pointer;margin-bottom:.7rem;animation:shimmer 3s linear infinite;text-decoration:none;transition:transform .2s}
+.pay-btn{display:block;width:100%;padding:.75rem;background:linear-gradient(90deg,#B8902A,#E8C060,#B8902A);background-size:200%;border:none;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:.9rem;font-weight:700;color:#1a0a02;cursor:pointer;margin-bottom:.5rem;animation:shimmer 3s linear infinite;text-decoration:none;transition:transform .2s;text-align:center}
 .pay-btn:hover{transform:scale(1.02)}
+.pay-btn-pp{background:linear-gradient(90deg,#003087,#009cde,#003087);background-size:200%;color:#fff;animation:shimmer 3s linear infinite}
 .pay-divider{font-size:.65rem;color:var(--gold-lt);opacity:.4;margin:.5rem 0}
 .pay-code-row{display:flex;gap:.5rem;margin-bottom:.8rem}
 .pay-code-row input{flex:1;background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.25);border-radius:6px;color:var(--gold-lt);padding:.45rem .7rem;font-size:.8rem;outline:none;text-align:center;letter-spacing:.1em}
@@ -1651,8 +1652,18 @@ if(new URLSearchParams(location.search).get('_reset')==='1'){
     </ul>
     <div class="pay-price">$2 <span>/ دعوة واحدة</span></div>
     <a class="pay-btn" href="https://abdking.gumroad.com/l/jkbied" target="_blank" onclick="trackPayClick()">
-      ادفع الآن — $2
+      💳 ادفع بالبطاقة — $2
     </a>
+    <a class="pay-btn pay-btn-pp" href="https://www.paypal.com/send?amount=2&currencyCode=USD&recipient=abdkingsaab@gmail.com&note=دعوة+زفاف" target="_blank" onclick="onPayPalClick()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="display:inline;vertical-align:middle;margin-left:4px"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.026.175-.041.26-.93 4.778-4.005 7.201-9.138 7.201h-2.19a.563.563 0 0 0-.556.479l-1.187 7.527h-.506l-.24 1.516a.56.56 0 0 0 .554.647h3.882c.46 0 .85-.334.922-.788.06-.26.76-4.852.816-5.09a.932.932 0 0 1 .923-.788h.58c3.76 0 6.705-1.528 7.565-5.946.36-1.847.174-3.388-.777-4.477z"/></svg>
+      ادفع بـ PayPal — $2
+    </a>
+    <div id="paypal-msg" style="display:none;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);border-radius:8px;padding:.7rem;font-size:.75rem;color:#E8D5A3;text-align:center;margin-top:.5rem;line-height:1.7">
+      بعد إتمام الدفع عبر PayPal،<br>
+      أرسل لقطة شاشة للإيصال على:<br>
+      <strong style="color:#C9A84C">kingdeed130@gmail.com</strong><br>
+      وسيصلك كود الفتح خلال دقائق ⚡
+    </div>
     <div class="pay-divider">— أو أدخل كود الفتح إذا دفعت مسبقاً —</div>
     <div class="pay-code-row">
       <input id="unlock-input" placeholder="أدخل الكود هنا" maxlength="20" onkeydown="if(event.key==='Enter')checkCode()">
@@ -2574,6 +2585,7 @@ if(document.readyState==='loading'){
   }catch(e){}
 })();
 
+function onPayPalClick(){document.getElementById('paypal-msg').style.display='block'}
 function openPayModal(){document.getElementById('pay-modal').classList.add('on')}
 function closePayModal(){document.getElementById('pay-modal').classList.remove('on')}
 function trackPayClick(){/* analytics hook */}

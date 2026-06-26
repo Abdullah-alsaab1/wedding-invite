@@ -2613,11 +2613,23 @@ function addWatermark(canvas){
   return canvas;
 }
 
+/* ── roundRect polyfill for older Chrome ── */
+if(!CanvasRenderingContext2D.prototype.roundRect){
+  CanvasRenderingContext2D.prototype.roundRect=function(x,y,w,h,r){
+    r=Math.min(r,w/2,h/2);
+    this.moveTo(x+r,y);this.lineTo(x+w-r,y);this.arcTo(x+w,y,x+w,y+r,r);
+    this.lineTo(x+w,y+h-r);this.arcTo(x+w,y+h,x+w-r,y+h,r);
+    this.lineTo(x+r,y+h);this.arcTo(x,y+h,x,y+h-r,r);
+    this.lineTo(x,y+r);this.arcTo(x,y,x+r,y,r);this.closePath();
+    return this;
+  };
+}
+
 /* ── Video Export ── */
 async function expVideo(){
   if(!isUnlocked()){openPayModal();return;}
 
-  const W=720,H=1280,FPS=30,DUR=11; // 11 seconds
+  const W=1080,H=1920,FPS=30,DUR=12; // 9:16 portrait full HD
   const cvs=document.createElement('canvas');
   cvs.width=W;cvs.height=H;
   const ctx=cvs.getContext('2d');
@@ -2821,6 +2833,9 @@ async function expVideo(){
   function renderFrame(f){
     const t=f/FPS; // time in seconds
     const T=t/DUR; // 0..1
+    // Apply global scale so all drawing coords stay in 720x1280 space
+    ctx.save();
+    ctx.scale(W/720,H/1280);
     drawBg(t);
 
     // Phases:
@@ -2877,11 +2892,13 @@ async function expVideo(){
       }
     }
 
-    // Final fade (10.5s+)
-    if(t>10.5){
-      const fa=Math.min(1,(t-10.5)/.5);
-      ctx.fillStyle=`rgba(8,6,4,${fa})`;ctx.fillRect(0,0,W,H);
+    // Final fade (11s+)
+    if(t>11){
+      const fa=Math.min(1,(t-11)/.8);
+      ctx.fillStyle=`rgba(8,6,4,${fa})`;ctx.fillRect(0,0,720,1280);
     }
+
+    ctx.restore(); // end global scale
   }
 
   await new Promise(resolve=>{

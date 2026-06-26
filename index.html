@@ -2659,8 +2659,7 @@ async function verifyPayPalOrder(){
       showToast('🎉 تم التحقق من دفعك! الموقع مفتوح الآن');
       // Show restore link after a short delay
       setTimeout(()=>{
-        const msg=`✅ الموقع مفتوح!\n\n🔗 احفظ هذا الرابط للدخول في أي وقت:\n${restoreLink}\n\n(انسخه واحفظه في ملاحظاتك)`;
-        alert(msg);
+        alert(`✅ الموقع مفتوح لمدة ${UNLOCK_HOURS} ساعة!\n\n⚠️ ملاحظة: الرابط صالح لـ ${UNLOCK_HOURS} ساعة فقط من الآن.\n\n🔗 احفظ هذا الرابط للدخول في أي وقت:\n${restoreLink}\n\n(انسخه واحفظه في ملاحظاتك)`);
       },1200);
     } else {
       const errs={

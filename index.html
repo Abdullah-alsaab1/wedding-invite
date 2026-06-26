@@ -2596,13 +2596,9 @@ function onPayPalClick(){
     <div style="font-size:2.5rem;margin-bottom:.8rem">💳</div>
     <div style="font-size:1.1rem;font-weight:700;color:#C9A84C;margin-bottom:.4rem">تم فتح PayPal في تبويب جديد</div>
     <div style="font-size:.8rem;color:#E8D5A3;opacity:.7;margin-bottom:1.4rem;line-height:1.9">
-      بعد الدفع، ارجع لهذه الصفحة والصق رقم الطلب هنا.<br>
-      <span style="color:#C9A84C;font-weight:700">وين تلاقيه؟</span><br>
-      📧 من إيميل التأكيد ← ابحث عن <strong style="color:#C9A84C">Transaction ID</strong><br>
-      🔗 أو من رابط PayPal — الأرقام في <strong style="color:#C9A84C">آخر الرابط</strong><br>
-      <span style="opacity:.6;font-size:.72rem">مثال: paypal.com/.../4PT966840L893343W</span>
+      بعد الدفع، انسخ <strong style="color:#C9A84C">رابط صفحة PayPal</strong> كامل والصقه هنا
     </div>
-    <input id="pp-order-input" placeholder="مثال: 5TY05013RG002845M" maxlength="50"
+    <input id="pp-order-input" placeholder="https://www.paypal.com/ncp/payment/..." maxlength="200"
       style="width:100%;max-width:300px;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.4);border-radius:8px;color:#E8D5A3;padding:.7rem 1rem;font-size:.85rem;text-align:center;margin-bottom:.8rem;outline:none;font-family:monospace;letter-spacing:.05em">
     <div id="pp-verify-msg" style="font-size:.75rem;min-height:1.2rem;margin-bottom:.6rem;color:#e74c3c;display:none"></div>
     <button onclick="verifyPayPalOrder()" style="background:linear-gradient(90deg,#B8902A,#E8C060);border:none;border-radius:10px;color:#1a0a02;font-weight:700;padding:.85rem 2rem;cursor:pointer;font-family:'Tajawal',sans-serif;font-size:.95rem;width:100%;max-width:300px">
@@ -2620,7 +2616,10 @@ async function verifyPayPalOrder(){
   const input=document.getElementById('pp-order-input');
   const msg=document.getElementById('pp-verify-msg');
   const btn=document.querySelector('#pp-overlay button');
-  const orderId=(input?.value||'').trim().toUpperCase();
+  let raw=(input?.value||'').trim();
+  // Extract Order ID from full PayPal URL if pasted
+  const urlMatch=raw.match(/paypal\.com\/[^\s]*\/([A-Z0-9]{10,25})\b/i);
+  const orderId=urlMatch?urlMatch[1].toUpperCase():raw.toUpperCase();
 
   if(!orderId){msg.textContent='أدخل رقم الطلب أولاً';msg.style.display='block';return;}
 

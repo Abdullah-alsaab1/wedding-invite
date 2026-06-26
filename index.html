@@ -3260,13 +3260,44 @@ async function sendChat(){
   }
 }
 
+// ── Persist form data across refreshes ──
+const SAVE_FIELDS=['n1','n2','dateG','timeH','timeM','timePM','venue','mapUrl','msg','footer'];
+const SAVE_KEY='wi_form_v1';
+
+function saveForm(){
+  const data={};
+  SAVE_FIELDS.forEach(id=>{const el=document.getElementById(id);if(el)data[id]=el.value;});
+  // save selected template
+  const active=document.querySelector('.tpl-card.active');
+  if(active)data._tpl=active.dataset.tpl||active.getAttribute('onclick')||'';
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify(data));}catch(e){}
+}
+
+function restoreForm(){
+  let data;
+  try{data=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');}catch(e){}
+  if(!data)return false;
+  SAVE_FIELDS.forEach(id=>{
+    const el=document.getElementById(id);
+    if(el&&data[id]!==undefined&&data[id]!=='')el.value=data[id];
+  });
+  return true;
+}
+
+// Auto-save on any input change
+document.addEventListener('input',()=>saveForm());
+document.addEventListener('change',()=>saveForm());
+
 window.addEventListener('DOMContentLoaded',()=>{
-  // set default date to 3 months from now
-  const def=new Date(); def.setMonth(def.getMonth()+3);
-  document.getElementById('dateG').value=def.toISOString().split('T')[0];
-  // set min attribute to tomorrow
   const tmr=new Date(); tmr.setDate(tmr.getDate()+1);
   document.getElementById('dateG').min=tmr.toISOString().split('T')[0];
+
+  const restored=restoreForm();
+  if(!restored){
+    // set default date to 3 months from now
+    const def=new Date(); def.setMonth(def.getMonth()+3);
+    document.getElementById('dateG').value=def.toISOString().split('T')[0];
+  }
   buildDate(); sync();
 });
 </script>

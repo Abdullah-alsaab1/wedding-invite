@@ -982,6 +982,149 @@ select.fancy-input option{background:#222;color:var(--cream)}
 </head>
 <body>
 
+<!-- ══════════ SPLASH SCREEN ══════════ -->
+<div id="splash">
+  <div class="sp-bg-stars" aria-hidden="true"></div>
+  <div class="sp-petals" aria-hidden="true"></div>
+
+  <div id="sp-card" onclick="openSplash()">
+    <div class="sp-card-inner">
+      <!-- Cover (front) -->
+      <div class="sp-front">
+        <div class="sp-corner sp-tl"></div>
+        <div class="sp-corner sp-tr"></div>
+        <div class="sp-corner sp-bl"></div>
+        <div class="sp-corner sp-br"></div>
+        <div class="sp-bismillah">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ</div>
+        <div class="sp-divider"></div>
+        <div class="sp-icon">💍</div>
+        <div class="sp-title">دعوة زفاف</div>
+        <div class="sp-subtitle">Wedding Invitation</div>
+        <div class="sp-divider"></div>
+        <div class="sp-tap">
+          <span class="sp-tap-icon">✦</span>
+          انقر لفتح الدعوة
+          <span class="sp-tap-icon">✦</span>
+        </div>
+        <div class="sp-tap-hint">اكتشف أجمل تصاميم دعوات الأعراس</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sp-skip" onclick="closeSplash()">تخطي ←</div>
+</div>
+
+<style>
+#splash{
+  position:fixed;inset:0;z-index:9999;
+  background:radial-gradient(ellipse at 50% 30%,#1a1205 0%,#0a0704 50%,#060402 100%);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;
+  transition:opacity .8s ease, visibility .8s ease;
+}
+#splash.out{opacity:0;visibility:hidden;pointer-events:none}
+
+/* Stars */
+.sp-bg-stars{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+
+/* Card */
+#sp-card{
+  cursor:pointer;
+  perspective:1200px;
+  width:min(340px,88vw);
+  height:min(480px,70vh);
+  position:relative;
+}
+.sp-card-inner{
+  width:100%;height:100%;
+  transform-style:preserve-3d;
+  transition:transform .9s cubic-bezier(.4,0,.2,1);
+  transform:rotateY(0deg);
+}
+#sp-card.open .sp-card-inner{transform:rotateY(-160deg)}
+
+.sp-front{
+  position:absolute;inset:0;
+  background:linear-gradient(155deg,#FFFDF5 0%,#F8EFDA 50%,#F0E0C0 100%);
+  border-radius:4px;
+  border:1px solid rgba(201,168,76,.4);
+  box-shadow:0 0 0 1px rgba(201,168,76,.15),0 8px 60px rgba(0,0,0,.7),0 0 80px rgba(201,168,76,.08);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:.6rem;padding:2rem 1.6rem;
+  backface-visibility:hidden;
+  animation:sp-float 4s ease-in-out infinite;
+  text-align:center;
+}
+@keyframes sp-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+#sp-card.open .sp-front{animation:none}
+
+/* Corners */
+.sp-corner{position:absolute;width:36px;height:36px;border-color:rgba(201,168,76,.7);border-style:solid}
+.sp-tl{top:10px;right:10px;border-width:2px 0 0 2px;border-radius:2px 0 0 0}
+.sp-tr{top:10px;left:10px;border-width:2px 2px 0 0;border-radius:0 2px 0 0}
+.sp-bl{bottom:10px;right:10px;border-width:0 0 2px 2px;border-radius:0 0 0 2px}
+.sp-br{bottom:10px;left:10px;border-width:0 2px 2px 0;border-radius:0 0 2px 0}
+
+.sp-bismillah{font-family:'Amiri','Tajawal',serif;font-size:.85rem;color:#7A5C14;opacity:.9;letter-spacing:.03em}
+.sp-divider{width:60%;height:1px;background:linear-gradient(90deg,transparent,rgba(201,168,76,.6),transparent);margin:.1rem 0}
+.sp-icon{font-size:2.2rem;animation:sp-pulse 2.5s ease-in-out infinite}
+@keyframes sp-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.sp-title{font-family:'Tajawal',sans-serif;font-size:1.5rem;font-weight:700;color:#2C1A0E;letter-spacing:.04em}
+.sp-subtitle{font-size:.7rem;color:#9A7820;letter-spacing:.25em;text-transform:uppercase}
+.sp-tap{
+  font-size:.78rem;color:#7A5C14;letter-spacing:.08em;
+  display:flex;align-items:center;gap:.5rem;
+  animation:sp-blink 2s ease-in-out infinite;
+  margin-top:.4rem;
+}
+@keyframes sp-blink{0%,100%{opacity:1}50%{opacity:.4}}
+.sp-tap-icon{font-size:.5rem;color:rgba(201,168,76,.8)}
+.sp-tap-hint{font-size:.6rem;color:#9A7820;opacity:.7}
+
+.sp-skip{
+  position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);
+  color:rgba(201,168,76,.45);font-size:.7rem;cursor:pointer;
+  letter-spacing:.1em;
+  transition:color .2s;
+  font-family:'Tajawal',sans-serif;
+}
+.sp-skip:hover{color:rgba(201,168,76,.8)}
+</style>
+
+<script>
+(function(){
+  /* Show once per session */
+  if(sessionStorage.getItem('sp_seen')==='1'){
+    document.getElementById('splash').style.display='none';
+    return;
+  }
+  /* Generate stars */
+  const sb=document.querySelector('.sp-bg-stars');
+  for(let i=0;i<60;i++){
+    const s=document.createElement('div');
+    const sz=Math.random()*2+1;
+    s.style.cssText=`position:absolute;width:${sz}px;height:${sz}px;border-radius:50%;background:#fff;opacity:${Math.random()*.5+.1};top:${Math.random()*100}%;left:${Math.random()*100}%;animation:twinkle ${Math.random()*3+2}s ${Math.random()*2}s ease-in-out infinite`;
+    sb.appendChild(s);
+  }
+})();
+
+function openSplash(){
+  const card=document.getElementById('sp-card');
+  if(card.classList.contains('open'))return;
+  card.classList.add('open');
+  setTimeout(closeSplash,700);
+}
+function closeSplash(){
+  sessionStorage.setItem('sp_seen','1');
+  document.getElementById('splash').classList.add('out');
+  setTimeout(()=>{
+    const el=document.getElementById('splash');
+    if(el)el.remove();
+  },900);
+}
+</script>
+<!-- ══════════ END SPLASH ══════════ -->
+
 <header class="hdr">
   <div class="hdr-bg-stars" aria-hidden="true">
     <span class="hdr-star s1">✦</span>

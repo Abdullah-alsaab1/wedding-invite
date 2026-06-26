@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>لوحة التحكم — Wedding Invite</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d0a04;color:#E8D5A3;font-family:'Tajawal',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem}
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
+h1{color:#C9A84C;font-size:1.6rem;margin-bottom:2rem;text-align:center}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;width:100%;max-width:700px;margin-bottom:2rem}
+.card{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.25);border-radius:12px;padding:1.5rem;text-align:center}
+.card .num{font-size:2.5rem;font-weight:700;color:#C9A84C;display:block;margin-bottom:.3rem}
+.card .lbl{font-size:.8rem;opacity:.6}
+.login{background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.3);border-radius:12px;padding:2rem;max-width:300px;width:100%;text-align:center}
+.login input{width:100%;background:rgba(201,168,76,.07);border:1px solid rgba(201,168,76,.3);border-radius:8px;color:#E8D5A3;padding:.6rem 1rem;font-size:1rem;text-align:center;margin:1rem 0;outline:none}
+.login button{width:100%;background:linear-gradient(90deg,#B8902A,#E8C060);border:none;border-radius:8px;color:#1a0a02;font-weight:700;padding:.7rem;cursor:pointer;font-size:.9rem}
+#dashboard{display:none;width:100%;max-width:700px}
+.refresh{background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);color:#C9A84C;border-radius:8px;padding:.5rem 1.2rem;cursor:pointer;font-size:.8rem;margin-bottom:1rem}
+</style>
+</head>
+<body>
+
+<div class="login" id="login-box">
+  <div style="font-size:2rem;margin-bottom:.5rem">💍</div>
+  <h1>لوحة التحكم</h1>
+  <input type="password" id="pwd" placeholder="كلمة المرور" onkeydown="if(event.key==='Enter')checkPwd()">
+  <button onclick="checkPwd()">دخول</button>
+  <p id="err" style="color:#cc3333;font-size:.75rem;margin-top:.5rem;display:none">كلمة المرور خاطئة</p>
+</div>
+
+<div id="dashboard">
+  <h1>💍 إحصائيات الموقع</h1>
+  <button class="refresh" onclick="loadStats()">🔄 تحديث</button>
+  <div class="cards">
+    <div class="card">
+      <span class="num" id="s-visits">...</span>
+      <span class="lbl">إجمالي الزوار</span>
+    </div>
+    <div class="card">
+      <span class="num" id="s-pdfs">...</span>
+      <span class="lbl">PDF تم تحميله</span>
+    </div>
+    <div class="card">
+      <span class="num" id="s-free-left">...</span>
+      <span class="lbl">مكان مجاني متبقي</span>
+    </div>
+    <div class="card">
+      <span class="num" id="s-rate">...</span>
+      <span class="lbl">معدل التحويل</span>
+    </div>
+  </div>
+  <p style="font-size:.7rem;opacity:.4;text-align:center">آخر تحديث: <span id="s-time"></span></p>
+</div>
+
+<script>
+const PASS = '';
+const FREE_LIMIT = 100;
+
+function checkPwd(){
+  const p = document.getElementById('pwd').value;
+  if(p === PASS){
+    document.getElementById('login-box').style.display='none';
+    document.getElementById('dashboard').style.display='block';
+    loadStats();
+  } else {
+    document.getElementById('err').style.display='block';
+  }
+}
+
+async function loadStats(){
+  try{
+    const [rv, rp] = await Promise.all([
+      fetch('https://api.counterapi.dev/v1/weddinginvite-space/visits/get'),
+      fetch('https://api.counterapi.dev/v1/weddinginvite-space/pdf-downloads/get')
+    ]);
+    const dv = await rv.json();
+    const dp = await rp.json();
+
+    const visits = dv.count || 0;
+    const pdfs   = dp.count || 0;
+    const freeLeft = Math.max(0, FREE_LIMIT - pdfs);
+    const rate = visits > 0 ? ((pdfs/visits)*100).toFixed(1)+'%' : '0%';
+
+    document.getElementById('s-visits').textContent   = visits.toLocaleString('ar');
+    document.getElementById('s-pdfs').textContent     = pdfs.toLocaleString('ar');
+    document.getElementById('s-free-left').textContent= freeLeft.toLocaleString('ar');
+    document.getElementById('s-rate').textContent     = rate;
+    document.getElementById('s-time').textContent     = new Date().toLocaleString('ar');
+  }catch(e){
+    alert('خطأ في تحميل الإحصائيات');
+  }
+}
+</script>
+</body>
+</html>

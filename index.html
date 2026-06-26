@@ -275,15 +275,9 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.3);box-shadow:0 
 .btn-main:hover{transform:translateY(-2px);box-shadow:0 10px 35px rgba(201,168,76,.4)}
 .btn-main:hover::before{transform:translateX(100%)}
 .btn-main:active{transform:translateY(0)}
-.video-music-row{display:flex;gap:.4rem;margin-top:.4rem;align-items:stretch}
-.btn-music{flex:0 0 auto;padding:.62rem .7rem;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:.72rem;font-weight:600;cursor:pointer;
-  border:1px solid rgba(201,168,76,.3);background:rgba(201,168,76,.04);color:var(--gold);
-  display:flex;align-items:center;gap:.3rem;transition:all .22s;white-space:nowrap}
-.btn-music:hover{background:rgba(201,168,76,.12);border-color:var(--gold)}
-.btn-music.picked{border-color:#4CAF50;color:#4CAF50;background:rgba(76,175,80,.07)}
-.btn-video{flex:1;padding:.62rem;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;
+.btn-video{width:100%;padding:.62rem;border-radius:8px;font-family:'Tajawal',sans-serif;font-size:.78rem;font-weight:600;cursor:pointer;
   border:1px solid rgba(201,168,76,.35);background:rgba(201,168,76,.06);color:var(--gold);
-  transition:all .22s;display:flex;align-items:center;justify-content:center;gap:.4rem}
+  margin-top:.4rem;transition:all .22s;display:flex;align-items:center;justify-content:center;gap:.4rem}
 .btn-video:hover{background:rgba(201,168,76,.13);border-color:var(--gold);transform:translateY(-1px)}
 
 /* STAGE */
@@ -1564,13 +1558,7 @@ function closeSplash(){
       <button class="btn btn-sl" id="pdf-small-btn" onclick="expPDF()" title="PDF بدون علامة مائية">📄 PDF 💎</button>
     </div>
     <button class="btn-main" id="pdf-main-btn" onclick="expPDF()">⬇ تحميل PDF الفاخر 💎 $2</button>
-    <div class="video-music-row">
-      <label class="btn-music" title="اختر موسيقى (mp3/m4a)">
-        🎵 <span id="music-label">اختر موسيقى</span>
-        <input type="file" id="music-file" accept="audio/*" style="display:none" onchange="onMusicPick(this)">
-      </label>
-      <button class="btn-video" id="video-btn" onclick="expVideo()" title="فيديو دعوة متحرك — للمدفوعين فقط">🎬 إنشاء الفيديو ✨</button>
-    </div>
+    <button class="btn-video" id="video-btn" onclick="expVideo()" title="فيديو دعوة متحرك — للمدفوعين فقط">🎬 فيديو الدعوة المتحرك ✨</button>
   </div>
 
 </aside>
@@ -2625,25 +2613,6 @@ function addWatermark(canvas){
   return canvas;
 }
 
-/* ── Music picker ── */
-let _musicBuffer=null;
-function onMusicPick(input){
-  const file=input.files[0];if(!file)return;
-  const label=document.getElementById('music-label');
-  const btn=document.querySelector('.btn-music');
-  label.textContent='⏳ جاري التحميل…';
-  const reader=new FileReader();
-  reader.onload=async e=>{
-    try{
-      const tmpCtx=new(window.AudioContext||window.webkitAudioContext)();
-      _musicBuffer=await tmpCtx.decodeAudioData(e.target.result);
-      await tmpCtx.close();
-      label.textContent='✓ '+file.name.slice(0,18);
-      btn.classList.add('picked');
-    }catch(err){label.textContent='خطأ في الملف';}
-  };
-  reader.readAsArrayBuffer(file);
-}
 
 /* ── Video Export ── */
 async function expVideo(){
@@ -2670,30 +2639,97 @@ async function expVideo(){
   const msg=gi('msg')||'', footer=gi('footer')||'';
 
   // Recording
-  // ── Music ──
-  const audioCtx=new(window.AudioContext||window.webkitAudioContext)();
-  const audioDest=audioCtx.createMediaStreamDestination();
+  // ── Wedding Music — Canon in D (Piano + Strings) ──
+  const AC=new(window.AudioContext||window.webkitAudioContext)();
+  const audioDest=AC.createMediaStreamDestination();
+  const now=AC.currentTime;
 
-  if(_musicBuffer){
-    // Use the user's chosen music file
-    const src=audioCtx.createBufferSource();
-    src.buffer=_musicBuffer;
-    src.loop=true;
-    const gainNode=audioCtx.createGain();
-    gainNode.gain.value=0.75;
-    // Fade out last 2 seconds
-    gainNode.gain.setValueAtTime(0.75, audioCtx.currentTime+DUR-2);
-    gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime+DUR);
-    src.connect(gainNode);gainNode.connect(audioDest);
-    src.start(audioCtx.currentTime+.3);
+  // Reverb via feedback delay
+  const rev=AC.createDelay(.55);const revG=AC.createGain();revG.gain.value=.28;
+  rev.connect(revG);revG.connect(rev);
+
+  // Master output with fade in/out
+  const master=AC.createGain();
+  master.gain.setValueAtTime(0,now);
+  master.gain.linearRampToValueAtTime(.7,now+2.5);
+  master.gain.setValueAtTime(.7,now+DUR-3);
+  master.gain.linearRampToValueAtTime(0,now+DUR);
+  master.connect(audioDest);
+  revG.connect(master);
+
+  // Note frequencies (D major)
+  const N={
+    D3:146.83,A3:220,B3:246.94,Gb3:185,G3:196,
+    D4:293.66,E4:329.63,Gb4:370,G4:392,A4:440,B4:493.88,Cs5:554.37,D5:587.33,
+    E5:659.25,Gb5:739.99,G5:784,A5:880
+  };
+
+  // Piano note: triangle + sine harmonics, piano ADSR
+  function piano(freq,t,dur,vol=.35){
+    [1,2,3.01,4.02].forEach((h,i)=>{
+      const o=AC.createOscillator(),g=AC.createGain(),f=AC.createBiquadFilter();
+      o.type=i===0?'triangle':'sine';
+      o.frequency.value=freq*h;
+      f.type='lowpass';f.frequency.value=1800-i*300;
+      const v=[vol,.18,.07,.03][i];
+      g.gain.setValueAtTime(0,t);
+      g.gain.linearRampToValueAtTime(v,t+.015);
+      g.gain.exponentialRampToValueAtTime(v*.45,t+.08);
+      g.gain.exponentialRampToValueAtTime(.001,t+dur*.9);
+      o.connect(f);f.connect(g);g.connect(master);g.connect(rev);
+      o.start(t);o.stop(t+dur+.05);
+    });
+  }
+
+  // Strings pad: slow attack sawtooth + lowpass
+  function strings(freq,t,dur,vol=.12){
+    const o=AC.createOscillator(),g=AC.createGain(),f=AC.createBiquadFilter();
+    o.type='sawtooth';o.frequency.value=freq;
+    f.type='lowpass';f.frequency.value=600;f.Q.value=1;
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(vol,t+.8);
+    g.gain.setValueAtTime(vol,t+dur-.5);
+    g.gain.linearRampToValueAtTime(0,t+dur);
+    o.connect(f);f.connect(g);g.connect(master);g.connect(rev);
+    o.start(t);o.stop(t+dur+.1);
+  }
+
+  // Canon in D — bass progression D A Bm F#m G D G A (each = 2 beats)
+  const BPM=52, B=60/BPM; // slow and romantic
+  const bass=[N.D3,N.A3,N.B3,N.Gb3,N.G3,N.D3,N.G3,N.A3];
+
+  // Repeat progression to fill DUR
+  const cycles=Math.ceil(DUR/(bass.length*2*B));
+  for(let c=0;c<cycles;c++){
+    bass.forEach((f,i)=>{
+      const t=now+c*bass.length*2*B+i*2*B+1;
+      piano(f,t,B*1.8,.22);
+      piano(f*2,t+B*.5,B*1.3,.12);
+      strings(f,t,B*2,.1);
+    });
+  }
+
+  // Melody — classic Canon in D melody (starts after 3s)
+  const mel=[
+    [N.Gb5,1.5],[N.E5,1],[N.D5,1],[N.Cs5,1],[N.B4,1.5],[N.A4,1],[N.B4,.5],[N.Cs5,.5],
+    [N.D5,1.5],[N.Cs5,1],[N.B4,1],[N.A4,1],[N.G4,1.5],[N.Gb4,1],[N.G4,.5],[N.A4,.5],
+    [N.B4,1.5],[N.A4,1],[N.G4,1],[N.Gb4,1],[N.E4,1.5],[N.D4,1],[N.E4,.5],[N.Gb4,.5],
+    [N.G4,2],[N.A4,1],[N.B4,1],[N.A4,2],[N.G4,1],[N.Gb4,1]
+  ];
+  let mt=now+B*4;
+  const melRep=Math.ceil(DUR/(mel.reduce((s,[,d])=>s+d,0)*B));
+  for(let r=0;r<melRep;r++){
+    mel.forEach(([f,d])=>{
+      piano(f,mt,d*B*.95,.28);
+      mt+=d*B;
+    });
   }
 
   // Combine video + audio
   const videoStream=cvs.captureStream(FPS);
-  const audioTracks=audioDest.stream.getAudioTracks();
   const combinedStream=new MediaStream([
     ...videoStream.getVideoTracks(),
-    ...audioTracks
+    ...audioDest.stream.getAudioTracks()
   ]);
 
   const mime=MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')

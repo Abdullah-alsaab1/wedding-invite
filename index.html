@@ -6,7 +6,7 @@
 <meta http-equiv="X-Content-Type-Options" content="nosniff">
 <meta http-equiv="X-Frame-Options" content="DENY">
 <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://va.vercel-scripts.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob:; connect-src 'self' https://vitals.vercel-insights.com https://api.counterapi.dev; frame-ancestors 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com https://cdnjs.cloudflare.com https://va.vercel-scripts.com; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob:; connect-src 'self' https://vitals.vercel-insights.com https://api.countapi.xyz; frame-ancestors 'none'">
 <script defer src="https://va.vercel-scripts.com/v1/script.js"></script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23FAF6EE' stroke='%23C9A84C' stroke-width='3'/%3E%3Ctext y='58' x='50' text-anchor='middle' font-size='52'%3E💍%3C/text%3E%3C/svg%3E">
 
@@ -1773,13 +1773,13 @@ function esc(str){const d=document.createElement('div');d.textContent=str;return
 (async function loadStats(){
   try{
     // visitor counter
-    const rv=await fetch('https://api.counterapi.dev/v1/weddinginvite-space/visits/up');
+    const rv=await fetch('https://api.countapi.xyz/hit/weddinginvite-space/visits');
     const dv=await rv.json();
     const el=document.getElementById('vc-num');
     if(el&&dv.count)el.textContent=Number(dv.count).toLocaleString('ar');
 
     // free PDF banner
-    const rp=await fetch('https://api.counterapi.dev/v1/weddinginvite-space/pdf-downloads/get');
+    const rp=await fetch('https://api.countapi.xyz/get/weddinginvite-space/pdf-downloads');
     const dp=await rp.json();
     const used=dp.count||0;
     const left=FREE_LIMIT-used;
@@ -1868,13 +1868,13 @@ async function expPNG(){
 const FREE_LIMIT=100;
 async function checkFreeSlots(){
   try{
-    const r=await fetch('https://api.counterapi.dev/v1/weddinginvite-space/pdf-downloads/get');
+    const r=await fetch('https://api.countapi.xyz/get/weddinginvite-space/pdf-downloads');
     const d=await r.json();
     return(d.count||0)<FREE_LIMIT;
   }catch{return false;}
 }
 async function incrementPDFCount(){
-  try{await fetch('https://api.counterapi.dev/v1/weddinginvite-space/pdf-downloads/up');}catch{}
+  try{await fetch('https://api.countapi.xyz/hit/weddinginvite-space/pdf-downloads');}catch{}
 }
 
 async function expPDF(){
@@ -1882,7 +1882,7 @@ async function expPDF(){
   const free=!alreadyUsedFree&&await checkFreeSlots();
   if(!free&&!isUnlocked()){openPayModal();return;}
   if(free){
-    const r=await fetch('https://api.counterapi.dev/v1/weddinginvite-space/pdf-downloads/get');
+    const r=await fetch('https://api.countapi.xyz/get/weddinginvite-space/pdf-downloads');
     const d=await r.json();
     const left=FREE_LIMIT-(d.count||0);
     if(left>0&&left<=20){

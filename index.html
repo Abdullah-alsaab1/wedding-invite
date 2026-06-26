@@ -1426,6 +1426,8 @@ select.fancy-input option{background:#222;color:var(--cream)}
 <script>
 if(new URLSearchParams(location.search).get('_reset')==='1'){
   localStorage.removeItem('wi_free_used');
+  localStorage.removeItem('wi_free_count');
+  localStorage.removeItem('wi_png_free');
   localStorage.removeItem('wi_expiry');
   localStorage.removeItem('wi_token');
   localStorage.removeItem('wi_sale');
@@ -2467,7 +2469,18 @@ async function expPNG(){
   showLoad('جاري تحضير الصورة...');
   try{
     const c=await capture();
-    const img=isUnlocked()?c:addWatermark(c);
+    const pngUsed=localStorage.getItem('wi_png_free')==='1';
+    let img;
+    if(isUnlocked()||!pngUsed){
+      img=c;
+      if(!pngUsed&&!isUnlocked()){
+        localStorage.setItem('wi_png_free','1');
+        const pngBtn=document.querySelector('[onclick="expPNG()"]');
+        if(pngBtn){pngBtn.title='PNG بعلامة مائية';pngBtn.innerHTML='🖼️ PNG';}
+      }
+    }else{
+      img=addWatermark(c);
+    }
     const a=document.createElement('a');
     a.download=`دعوة-${v('n1')}-و-${v('n2')}.png`;
     a.href=img.toDataURL('image/png');
@@ -2570,7 +2583,7 @@ const FAQ=[
    a:'بعد الدفع يصلك كود على إيميلك خلال دقيقة. أدخله في الحقل أسفل زر الدفع وستحمّل PDF بدون علامة مائية ✅'},
 
   {kw:['png','صورة','علامة مائية','watermark','مجاني بدون'],
-   a:'PNG مجاني دائماً لكن بعلامة مائية صغيرة. لإزالتها احصل على PDF ($2) وستكون الدعوة نظيفة 100% 💎'},
+   a:'أول تحميل PNG مجاني بدون علامة مائية 🎁 بعدها تظهر علامة مائية صغيرة. لإزالتها دائماً احصل على PDF ($2) 💎'},
 
   {kw:['تغيير','تعديل','اسم','أسماء','عروس','عريس','غير','بدل','ادخل'],
    a:'في القائمة على اليمين أدخل اسم العريس والعروسة — تظهر في الدعوة فوراً بدون أي تحميل 👁️'},

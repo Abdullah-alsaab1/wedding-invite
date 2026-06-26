@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import { rateLimit, getIP, secHeaders } from './_guard.js';
+import { incr } from './_kv.js';
 
 const PP_CLIENT  = process.env.PAYPAL_CLIENT_ID     || '';
 const PP_SECRET  = process.env.PAYPAL_CLIENT_SECRET || '';
@@ -103,6 +104,7 @@ export default async function handler(req, res) {
     }
 
     const { saleId, token } = generateToken(orderId);
+    incr('wi:unlocked').catch(()=>{});
     return res.status(200).json({ ok: true, sale: saleId, token });
 
   } catch (err) {

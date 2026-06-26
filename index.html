@@ -3167,9 +3167,12 @@ function freeRemaining(){
   return Math.max(0, MAX_FREE - getFreeCount());
 }
 
+function track(event){fetch('/api/track',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({event})}).catch(()=>{});}
+
 async function expPDF(){
   const remaining = freeRemaining();
   if(remaining<=0 && !isUnlocked()){openPayModal();return;}
+  track('pdf');
 
   if(remaining>0){
     const newCount = getFreeCount()+1;

@@ -1,5 +1,5 @@
-import crypto from 'crypto';
 import { secHeaders } from './_guard.js';
+import { mget } from './_kv.js';
 
 const ADMIN_USER = process.env.ADMIN_USER || 'king';
 const ADMIN_PASS = process.env.ADMIN_PASS || 'king2026';
@@ -12,20 +12,21 @@ function checkAuth(req) {
   return user === ADMIN_USER && pass === ADMIN_PASS;
 }
 
-export default function handler(req, res) {
+export default async function handler(req, res) {
   secHeaders(res);
   if (!checkAuth(req)) {
     res.setHeader('WWW-Authenticate', 'Basic realm="Admin"');
     return res.status(401).json({ error: 'unauthorized' });
   }
 
-  // Basic stats from env counters (Vercel doesn't expose logs via API easily)
-  // These will show "—" until a DB is wired up — at least endpoint exists now
+  const [visits, pdfs, unlocked] = await mget('wi:visits', 'wi:pdfs', 'wi:unlocked') || [null, null, null];
+  const v = parseInt(visits) || 0;
+  const u = parseInt(unlocked) || 0;
+
   return res.status(200).json({
-    visits:   process.env.STAT_VISITS   || null,
-    pdfs:     process.env.STAT_PDFS     || null,
-    unlocked: process.env.STAT_UNLOCKED || null,
-    rate:     process.env.STAT_RATE     || null,
-    _note:    'Connect Vercel KV for live counters'
+    visits:   v,
+    pdfs:     parseInt(pdfs) || 0,
+    unlocked: u,
+    rate:     v > 0 ? ((u / v) * 100).toFixed(1) + '%' : '—',
   });
 }

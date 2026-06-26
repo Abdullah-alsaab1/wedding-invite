@@ -72,6 +72,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 @keyframes fadeInDown{from{opacity:0;transform:translateY(-22px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeInUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes free-pulse{0%,100%{transform:scale(1);box-shadow:0 4px 16px rgba(46,168,46,.3)}50%{transform:scale(1.03);box-shadow:0 6px 24px rgba(46,168,46,.55)}}
 @keyframes slideInRight{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
 @keyframes cardEntrance{from{opacity:0;transform:scale(.92) translateY(24px)}to{opacity:1;transform:scale(1) translateY(0)}}
 @keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
@@ -814,8 +815,9 @@ select.fancy-input option{background:#222;color:var(--cream)}
 /* ── Contact Button ── */
 #contact-btn{position:fixed;bottom:1.2rem;left:1.2rem;z-index:400;background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.3);color:var(--gold);border-radius:50px;padding:.45rem 1rem;font-family:'Tajawal',sans-serif;font-size:.78rem;cursor:pointer;backdrop-filter:blur(6px);transition:background .2s}
 #contact-btn:hover{background:rgba(201,168,76,.22)}
-#free-banner{position:fixed;top:0;left:0;right:0;z-index:600;background:linear-gradient(90deg,#7A5C14,#C9A84C,#7A5C14);color:#1a0a02;text-align:center;padding:.4rem 1rem;font-family:'Tajawal',sans-serif;font-size:.8rem;font-weight:700;display:none}
+#free-banner{position:fixed;top:0;left:0;right:0;z-index:600;background:linear-gradient(90deg,#5C3D00,#C9A84C,#E8C860,#C9A84C,#5C3D00);background-size:200% 100%;animation:banner-shimmer 3s linear infinite;color:#1a0a02;text-align:center;padding:.5rem 1rem;font-family:'Tajawal',sans-serif;font-size:.85rem;font-weight:700;display:none;cursor:pointer;letter-spacing:.02em;box-shadow:0 2px 12px rgba(201,168,76,.5)}
 #free-banner.on{display:block}
+@keyframes banner-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 #visitor-counter{position:fixed;bottom:1.2rem;right:1.2rem;z-index:400;background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.2);color:var(--gold-lt);border-radius:50px;padding:.4rem .9rem;font-family:'Tajawal',sans-serif;font-size:.72rem;backdrop-filter:blur(6px);display:flex;align-items:center;gap:.4rem;pointer-events:none}
 #visitor-counter .vc-dot{width:6px;height:6px;background:#4caf50;border-radius:50%;animation:pulse-dot 2s infinite}
 @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.4)}}
@@ -1302,18 +1304,19 @@ select.fancy-input option{background:#222;color:var(--cream)}
 <main class="stage" id="stage">
 <!-- PETALS CANVAS — inside stage only -->
 <!-- ── FREE BANNER ── -->
-<div id="free-banner">🎁 أول <span id="free-left">100</span> دعوة مجانية — لا تفوّت فرصتك!</div>
+<div id="free-banner">
+  <span id="free-banner-text">🎁 أول تحميل PDF لك مجاني تماماً — جرّب الآن!</span>
+</div>
 
-<!-- ── DEV RESET (hidden, Ctrl+Shift+R) ── -->
+<!-- ── DEV RESET via URL param ?_reset=1 ── -->
 <script>
-document.addEventListener('keydown',function(e){
-  if(e.ctrlKey&&e.shiftKey&&e.key==='R'){
-    localStorage.removeItem('wi_free_used');
-    localStorage.removeItem('wi_expiry');
-    localStorage.removeItem('wi_token');
-    location.reload();
-  }
-});
+if(new URLSearchParams(location.search).get('_reset')==='1'){
+  localStorage.removeItem('wi_free_used');
+  localStorage.removeItem('wi_expiry');
+  localStorage.removeItem('wi_token');
+  localStorage.removeItem('wi_sale');
+  history.replaceState({},'',location.pathname);
+}
 </script>
 
 <!-- ── CONTACT BUTTON ── -->
@@ -2205,20 +2208,49 @@ function recordAttempt(){
 function esc(str){const d=document.createElement('div');d.textContent=str;return d.innerHTML;}
 
 /* visitor counter + free banner */
-(function loadStats(){
+function initFreeUI(){
   const banner=document.getElementById('free-banner');
+  const bannerText=document.getElementById('free-banner-text');
   const mainBtn=document.getElementById('pdf-main-btn');
   const smallBtn=document.getElementById('pdf-small-btn');
   const alreadyUsed=localStorage.getItem('wi_free_used')==='1';
 
   if(!alreadyUsed&&!isUnlocked()){
     if(banner)banner.classList.add('on');
-    if(mainBtn)mainBtn.textContent='🎁 تحميل PDF مجاني — أول مرة ببلاش!';
-    if(smallBtn){smallBtn.textContent='📄 PDF مجاني 🎁';smallBtn.title='مجاني لأول مرة';}
+    if(bannerText)bannerText.textContent='🎁 أول تحميل PDF لك مجاني تماماً — انقر على الزر الآن!';
+    if(mainBtn){mainBtn.textContent='🎁 تحميل PDF مجاني — ببلاش!';mainBtn.style.background='linear-gradient(90deg,#1a6b1a,#2ea82e)';}
+    if(smallBtn){smallBtn.textContent='📄 PDF 🎁';smallBtn.title='مجاني لأول مرة';}
+
+    // bounce animation to attract attention
+    if(mainBtn){
+      mainBtn.style.animation='free-pulse 1.8s ease-in-out infinite';
+    }
+  } else if(isUnlocked()){
+    if(banner)banner.classList.remove('on');
+    if(mainBtn){mainBtn.textContent='⬇ تحميل PDF الفاخر ✓';mainBtn.style.background='';}
   } else {
     if(banner)banner.classList.remove('on');
+    if(mainBtn){mainBtn.textContent='⬇ تحميل PDF الفاخر 💎 $2';mainBtn.style.background='';}
+    if(smallBtn){smallBtn.textContent='📄 PDF 💎';smallBtn.title='PDF بدون علامة مائية';}
   }
-})();
+
+  // local visit counter
+  const vc=document.getElementById('vc-num');
+  if(vc){
+    let visits=parseInt(localStorage.getItem('wi_vc')||'0');
+    if(!localStorage.getItem('wi_vc_today')||localStorage.getItem('wi_vc_today')!==new Date().toDateString()){
+      visits++;
+      localStorage.setItem('wi_vc',visits);
+      localStorage.setItem('wi_vc_today',new Date().toDateString());
+    }
+    vc.textContent=Math.max(visits,1).toLocaleString('ar');
+  }
+}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',initFreeUI);
+}else{
+  initFreeUI();
+}
 
 /* auto-unlock from Gumroad redirect */
 (async function autoUnlockFromURL(){
@@ -2300,11 +2332,10 @@ async function expPDF(){
   if(!free&&!isUnlocked()){openPayModal();return;}
   if(free){
     localStorage.setItem('wi_free_used','1');
-    // update UI to paid after using free slot
     const mainBtn=document.getElementById('pdf-main-btn');
     const smallBtn=document.getElementById('pdf-small-btn');
     const banner=document.getElementById('free-banner');
-    if(mainBtn)mainBtn.textContent='⬇ تحميل PDF الفاخر 💎 $2';
+    if(mainBtn){mainBtn.textContent='⬇ تحميل PDF الفاخر 💎 $2';mainBtn.style.background='';mainBtn.style.animation='';}
     if(smallBtn){smallBtn.textContent='📄 PDF 💎';smallBtn.title='PDF بدون علامة مائية';}
     if(banner)banner.classList.remove('on');
   }

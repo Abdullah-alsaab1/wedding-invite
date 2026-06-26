@@ -2650,8 +2650,18 @@ function addWatermark(canvas){
 
 
 /* ── Video Export ── */
+const MAX_VID=3; // max clean videos per purchase
+function getVidCount(){return parseInt(localStorage.getItem('wi_vid_count')||'0');}
+function incVidCount(){localStorage.setItem('wi_vid_count',getVidCount()+1);}
+
 async function expVideo(){
   const vidUnlocked=isUnlocked();
+
+  // Paid users: check video limit
+  if(vidUnlocked && getVidCount()>=MAX_VID){
+    if(!confirm(`استخدمت ${MAX_VID} فيديوهات مدفوعة 🎬\n\nللحصول على المزيد، يمكنك الدفع مجدداً ($2).\n\nهل تريد الدفع الآن؟`)){return;}
+    openPayModal();return;
+  }
 
   // ── Setup: draw in 540×960 logical space, output 1080×1920 ──
   const VW=540,VH=960,SC=2; // logical × SC = output pixels
@@ -3004,6 +3014,7 @@ async function expVideo(){
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
   a.download=`دعوة-${n1}-و-${n2}${vidUnlocked?'':'-معاينة'}.${isMP4?'mp4':'webm'}`;
+  if(vidUnlocked) incVidCount();
   a.href=url;a.click();
   setTimeout(()=>URL.revokeObjectURL(url),8000);
   if(!vidUnlocked){

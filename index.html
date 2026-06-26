@@ -2722,6 +2722,11 @@ async function expVideo(){
     openPayModal();return;
   }
 
+  // Ensure Tajawal font is loaded before drawing
+  await document.fonts.load('bold 40px Tajawal');
+  await document.fonts.load('40px Tajawal');
+  await document.fonts.ready;
+
   // ── Setup: iOS uses 1× to avoid memory limits, desktop uses 2× ──
   const isIOS=/iPad|iPhone|iPod/.test(navigator.userAgent);
   const VW=540,VH=960,SC=isIOS?1:2;

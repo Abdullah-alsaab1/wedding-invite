@@ -3319,12 +3319,14 @@ function matchFAQ(question,faqs){
   let best=null,bestScore=0;
   for(const entry of faqs){
     let score=0;
-    for(const kw of entry.keywords){
+    const keywords=entry.keywords||entry.kw||[];
+    for(const kw of keywords){
       if(q.includes(kw.toLowerCase()))score++;
     }
     if(score>bestScore){bestScore=score;best=entry;}
   }
-  return bestScore>0?best:null;
+  if(!best)return null;
+  return{answer:best.answer||best.a||''};
 }
 
 function toggleChat(){

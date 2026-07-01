@@ -3001,80 +3001,41 @@ async function expVideo(){
 
   // ── PHASE 3: Full invitation (5-14s) ──
   function drawFullCard(t){
-    const p=clamp((t-7)/13,0,1); // reveal completes by t≈21, holds till fade
+    const p=clamp((t-7)/13,0,1);
     const cx=CX, cy=CY*.88;
     const cw=490, ch=780;
     const x=cx-cw/2, y=cy-ch/2;
 
     ctx.save();
-    const bg=ctx.createLinearGradient(x,y,x+cw,y+ch);
-    bg.addColorStop(0,'#FFFDF5');bg.addColorStop(.5,'#F8EFDA');bg.addColorStop(1,'#EDD9A3');
-    ctx.shadowColor='rgba(201,168,76,.25)';ctx.shadowBlur=35;
-    ctx.fillStyle=bg;rr(x,y,cw,ch,6);ctx.fill();
-    ctx.shadowBlur=0;
-    ctx.strokeStyle='rgba(201,168,76,.65)';ctx.lineWidth=2;rr(x,y,cw,ch,6);ctx.stroke();
-    ctx.strokeStyle='rgba(201,168,76,.25)';ctx.lineWidth=1;rr(x+12,y+12,cw-24,ch-24,4);ctx.stroke();
 
-    const cs=36,pad=14;
-    [[x+pad,y+pad,1,1],[x+cw-pad,y+pad,-1,1],[x+pad,y+ch-pad,1,-1],[x+cw-pad,y+ch-pad,-1,-1]].forEach(([x2,y2,sx,sy])=>{
-      ctx.strokeStyle='rgba(201,168,76,.85)';ctx.lineWidth=2;
-      ctx.beginPath();ctx.moveTo(x2,y2+sy*cs);ctx.lineTo(x2,y2);ctx.lineTo(x2+sx*cs,y2);ctx.stroke();
-    });
+    if(cardBmp){
+      // Use the real captured invitation card (respects selected template)
+      ctx.globalAlpha=p;
+      ctx.shadowColor='rgba(0,0,0,.4)';ctx.shadowBlur=30;
+      ctx.drawImage(cardBmp,x,y,cw,ch);
+      ctx.shadowBlur=0;
+    } else {
+      // Fallback: plain gold card if capture failed
+      const bg=ctx.createLinearGradient(x,y,x+cw,y+ch);
+      bg.addColorStop(0,'#FFFDF5');bg.addColorStop(.5,'#F8EFDA');bg.addColorStop(1,'#EDD9A3');
+      ctx.shadowColor='rgba(201,168,76,.25)';ctx.shadowBlur=35;
+      ctx.globalAlpha=p;
+      ctx.fillStyle=bg;rr(x,y,cw,ch,6);ctx.fill();
+      ctx.shadowBlur=0;
+      ctx.strokeStyle='rgba(201,168,76,.65)';ctx.lineWidth=2;rr(x,y,cw,ch,6);ctx.stroke();
+    }
 
+    // Date & venue overlay (fade in on top of card)
     const row=(txt,yOff,size,color,pThresh,dur=.12)=>{
       const a=alpha(p,pThresh,dur);if(!a)return;
       ctx.globalAlpha=a;ctx.fillStyle=color;
-      ctx.font=`${size}px 'Tajawal',sans-serif`;
+      ctx.font=`bold ${size}px 'Tajawal',sans-serif`;
       ctx.textAlign='center';ctx.textBaseline='middle';
       ctx.fillText(txt,cx,y+yOff);
     };
-    const goldG=()=>{const g=ctx.createLinearGradient(cx-120,0,cx+120,0);g.addColorStop(0,'#C9A84C');g.addColorStop(.5,'#F0D880');g.addColorStop(1,'#C9A84C');return g;};
-    const divider=(yOff,w,thresh)=>{
-      const a=alpha(p,thresh,.08);if(!a)return;
-      ctx.globalAlpha=a;
-      const dg=ctx.createLinearGradient(cx-w,0,cx+w,0);
-      dg.addColorStop(0,'transparent');dg.addColorStop(.5,'rgba(201,168,76,.65)');dg.addColorStop(1,'transparent');
-      ctx.fillStyle=dg;ctx.fillRect(cx-w,y+yOff,w*2,1.5);
-    };
-
-    row('بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ',55,20,'#7A5C14',0,.1);
-    divider(88,160,.1);
-    row('نتشرّف بدعوتكم الكريمة',115,17,'#5A3C0A',.12,.1);
-
-    if(p>.2){ctx.globalAlpha=alpha(p,.2,.12);ctx.font='52px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('💍',cx,y+190);}
-
-    if(p>.3){
-      ctx.globalAlpha=alpha(p,.3,.15);ctx.fillStyle=goldG();
-      ctx.font=`bold 38px 'Tajawal',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.fillText(n1,cx,y+265);
-    }
-    if(p>.42){
-      ctx.globalAlpha=alpha(p,.42,.1);ctx.fillStyle='rgba(90,60,10,.55)';
-      ctx.font=`26px 'Tajawal',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.fillText('— و —',cx,y+318);
-    }
-    if(p>.52){
-      ctx.globalAlpha=alpha(p,.52,.15);ctx.fillStyle=goldG();
-      ctx.font=`bold 38px 'Tajawal',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.fillText(n2,cx,y+372);
-    }
-
-    divider(408,120,.65);
-
-    if(msg&&p>.68){
-      const a=alpha(p,.68,.12);ctx.globalAlpha=a;ctx.fillStyle='#4A3008';
-      ctx.font=`16px 'Tajawal',sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
-      const words=msg.split(' ');let line='',lines=[];
-      words.forEach(w=>{const tmp=line+w+' ';if(ctx.measureText(tmp).width>cw-60&&line){lines.push(line.trim());line=w+' ';}else line=tmp;});
-      if(line.trim())lines.push(line.trim());
-      lines.slice(0,3).forEach((l,i)=>ctx.fillText(l,cx,y+440+i*24));
-    }
 
     if(dateVal&&p>.75){row('📅  '+dateVal,530,18,'#3D2608',.75,.1);}
     if(venue&&p>.78){row('📍  '+venue,565,17,'#3D2608',.78,.1);}
-
-    divider(620,90,.88);
-    if(footer&&p>.9){row(footer,655,16,'#9A7820',.9,.08);}
 
     // Gold sparkles after fully revealed
     if(p>.95){
